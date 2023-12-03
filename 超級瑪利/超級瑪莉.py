@@ -11,26 +11,6 @@ from MAP import map_1
 from pygame.locals import QUIT
 #初始化
 pygame.init()
-
-
-#偵測地圖檔
-background_confirm = "./MAP/background"
-map_1_confirm = "./map_1.py/"  
-confirm_result = os.path.isdir(background_confirm)
-
-head_font = pygame.font.SysFont(None,50)
-confirm = head_font.render(f"background confirm: {confirm_result}",True,(0, 0, 0))
-
-
-'''
-# 使用 os 模組列出資料夾中的所有檔案
-files_in_folder = os.listdir(folder_path)
-# 使用 glob 模組篩選出資料夾中的所有檔案
-files_with_path = glob.glob(os.path.join(folder_path, '*'))
-# 打印檔案清單
-print("Files using os.listdir:", files_in_folder)
-print("Files using glob.glob:", files_with_path)
-'''
 #設定畫面邊界大小
 width, height = 1280, 720
 #設定視窗大小
@@ -38,10 +18,6 @@ screen = pygame.display.set_mode((width,height))        #set_mode << 設定視�
 pygame.display.set_caption('超級瑪莉')      #set_caption('視窗名稱') << 設定視窗名稱
 #填滿視窗(顏色(R, G, B))
 screen.fill((255,255,255))      #fill << 填滿
-#顯示檔案確認結果
-screen.blit(confirm,(width // 2-200, height // 2))
-pygame.display.flip()
-time.sleep(1)
     #設定各項數值
 #顏色
 white = (255,255,255)
@@ -102,6 +78,42 @@ resistance_x = 0.2 * (60 / clock_hz)                    #x方向基礎阻力 ( <
 velocitymax_x = 4 * (60 / clock_hz)                     #x方向最大速度
 velocitymini_x = 0.08 * (60 / clock_hz)                 #x方向最小速度
 gravitational_acceleration = 0.12 * (60 / clock_hz)     #重力加速度
+
+#地圖檔
+    # background.py
+def boundary (player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x) :
+    import math
+    collision_x = 0
+    collision_y = 0
+    if player_x + math.copysign(0.001, velocity_x) >= 0 :
+        collision_x = 0
+    elif player_x + math.copysign(0.001, velocity_x) <= 0:
+        collision_x = -1
+    if player_y + math.copysign(0.001, velocity_y) <= (height - player_sizey) :
+        collision_y = 0
+    elif player_y + math.copysign(0.001, velocity_y) >= (height - player_sizey) :
+        collision_y = -1
+    return (collision_x*10 + collision_y) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #遊戲clock
@@ -192,7 +204,7 @@ while True:
 
     #x碰撞+移動
     n = int(abs(round_vx)*1000)  
-    for time_v in range(1,n):
+    for time_v in range(0,n):
         collision_return = background.boundary(player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x) #collision_x = 回傳的 return 值
 
 
@@ -213,7 +225,7 @@ while True:
             velocity_x = 0 
     #y碰撞+移動
     n = int(abs(round_vy)*1000)  
-    for time_v in range(1,n):
+    for time_v in range(0,n):
         collision_return = background.boundary(player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x)
 
         if collision_return == -10 or collision_return == 0 or collision_return == 10:            #return 值轉換 x 方向碰撞
@@ -253,7 +265,7 @@ while True:
     head_font = pygame.font.SysFont(None,20)
 
     #宣告 NAME = NAME.render(f"文本{變數}", 平滑值, 文字顏色, 背景顏色)       #render << 設定文本     #f 是用來表示一個格式化字串（formatted string）的開頭
-    test = head_font.render(f"confirm_result: {confirm_result} collision_x: {round(collision_x, 2)}  round_vx: {round_vx} stand: {stand}" ,True,(0,0,0))    #顯示參數(方便測試Debug用)
+    test = head_font.render(f" collision_x: {round(collision_x, 2)}  round_vx: {round_vx} stand: {stand}" ,True,(0,0,0))    #顯示參數(方便測試Debug用)
     #顯示測試參數
     screen.blit(test,(10,10))
     #顯示版本
