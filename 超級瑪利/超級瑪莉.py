@@ -44,6 +44,9 @@ version = Version.render("V1.0.2", True, (0, 0, 0))     #放在這裡純粹方�
 
 #各項參數
     #變數
+loopstage = 0                              #迴圈階段
+gamestage = 0                              #遊戲階段(關卡 暫停 主畫面 死亡)
+
 key_right = 0
 key_left = 0
 key_up = 0
@@ -79,23 +82,37 @@ velocitymax_x = 4 * (60 / clock_hz)                     #x方向最大速度
 velocitymini_x = 0.08 * (60 / clock_hz)                 #x方向最小速度
 gravitational_acceleration = 0.12 * (60 / clock_hz)     #重力加速度
 
+
+
 #地圖檔
     # background.py
-def boundary (player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x) :
+def boundary (player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage) :
     import math
     collision_x = 0
     collision_y = 0
-    if player_x + math.copysign(0.001, velocity_x) >= 0 :
-        collision_x = 0
-    elif player_x + math.copysign(0.001, velocity_x) <= 0:
-        collision_x = -1
-    if player_y + math.copysign(0.001, velocity_y) <= (height - player_sizey) :
-        collision_y = 0
-    elif player_y + math.copysign(0.001, velocity_y) >= (height - player_sizey) :
-        collision_y = -1
-    return (collision_x*10 + collision_y) 
-
-
+    if loopstage == 4 :
+        if player_x + math.copysign(0.001, velocity_x) >= 0 :
+            collision_x = 0
+        elif player_x + math.copysign(0.001, velocity_x) <= 0:
+            collision_x = -1
+    if loopstage == 5 :
+        if player_y + math.copysign(0.001, velocity_y) <= (height - player_sizey) :
+            collision_y = 0
+        elif player_y + math.copysign(0.001, velocity_y) >= (height - player_sizey) :
+            collision_y = -1
+    def_return = [collision_x , collision_y]
+    return def_return
+    
+    #map_1
+def map_1 (player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage) :
+    object = [
+        [200, height - 30, 30, 30 ]
+    ]
+    
+    if loopstage == 9 :
+        create_time = len(object)
+        for time_c in range(0, create_time) :
+            pygame.draw.rect(screen, blue, (object[time_c][0], object[time_c][1], object[time_c][2], object[time_c][3]))
 
 
 
@@ -131,7 +148,7 @@ while True:
     #設定按鍵
 
     keys = pygame.key.get_pressed()
-
+    loopstage = 1 # 迴圈第1階段
     if keys[pygame.K_LEFT] :
         key_left = 1
     if keys[pygame.K_RIGHT] :
@@ -173,11 +190,13 @@ while True:
         hold = 0
 
     #將加速度導入速度
+    loopstage = 2  # 迴圈第2階段
     velocity_x = velocity_x + acceleration_x
     velocity_y = velocity_y + acceleration_y + gravitational_acceleration
 
     #阻力(x方向) >> 速度
     #x方向阻力
+    loopstage = 3  # 迴圈第3階段
     if velocity_x >= velocitymini_x :
         velocity_x = velocity_x - resistance_x*(abs(velocity_x)/(velocitymax_x))            #線性調整阻力大小
         if key_right == 1 and key_left == 1 :
@@ -202,19 +221,15 @@ while True:
     round_vy = round(velocity_y, 2)     #速度x取到小數點後第2位
     
 
-    #x碰撞+移動
+    # x碰撞+移動
+    
     n = int(abs(round_vx)*1000)  
     for time_v in range(0,n):
-        collision_return = background.boundary(player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x) #collision_x = 回傳的 return 值
+        loopstage = 4  # 迴圈第4階段
+        collision_x = boundary(player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage)[0] # collision_x = 回傳的 return 值
+        
 
-
-
-        if collision_return == -1 or collision_return == 1 or collision_return == 0:            #return 值轉換 x 方向碰撞
-            collision_x = 0
-        if collision_return == -11 or collision_return == -10 or collision_return == -9:
-            collision_x = -1
-        if collision_return == 11 or collision_return == 10 or collision_return == 9:
-            collision_x = 1
+        
 
         if collision_x == 0 :
             player_x = player_x + math.copysign(0.001, velocity_x)
@@ -223,17 +238,14 @@ while True:
                 map_x = map_x + math.copysign(0.001, velocity_x)   
         elif collision_x == -1 or collision_x == 1 :
             velocity_x = 0 
-    #y碰撞+移動
+    # y碰撞+移動
     n = int(abs(round_vy)*1000)  
     for time_v in range(0,n):
-        collision_return = background.boundary(player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x)
+        loopstage = 5  # 迴圈第5階段
+        collision_y = boundary(player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage)[1]
+        
 
-        if collision_return == -10 or collision_return == 0 or collision_return == 10:            #return 值轉換 x 方向碰撞
-            collision_y = 0
-        if collision_return == -11 or collision_return == -1 or collision_return == 9:
-            collision_y = -1
-        if collision_return == 11 or collision_return == 1 or collision_return == -9:
-            collision_y = 1
+       
         
         if collision_y == 0 :
             player_y = player_y + math.copysign(0.001, velocity_y)
@@ -247,7 +259,8 @@ while True:
         jump = 2
         stand = 1
 
-    #清空加速度數值
+    # 清空加速度數值
+    loopstage = 6  # 迴圈第6階段
     acceleration_x = 0      
     acceleration_y = 0
     key_left = 0
@@ -256,24 +269,32 @@ while True:
     pymunk_player_x = player_x
     pymunk_player_y = height - player_y      
     # 清空畫面
+    #oopstage = 7  # 迴圈第7階段
     screen.fill(white)      #fill << 填滿
 
-    # 畫出玩家  pygame.draw.rect(顯示於, 顏色(x座標, y座標, x方向大小, y方向大小))      #rect << 定位矩形空間
+    # 畫出玩家  pygame.draw.rect(顯示於, 顏色(x座標, y座標, x方向大小, y方向大小))      # rect << 定位矩形空間
+    #loopstage == 8  # 迴圈第8階段
     pygame.draw.rect(screen, blue, (player_x, player_y, player_sizex, player_sizey))
 
-    #宣告head_font = pygame.font.SysFont(字體,字體大小)     #SysFont << 設定字體(這裡只自體本身，如字體(新細明體, 標楷體)和字體大小
+
+    # 畫出地圖
+    loopstage = 9  # 迴圈第9階段
+    map_1 (player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage) 
+
+    
+    
+    # 宣告head_font = pygame.font.SysFont(字體,字體大小)     # SysFont << 設定字體(這裡只自體本身，如字體(新細明體, 標楷體)和字體大小
     head_font = pygame.font.SysFont(None,20)
 
-    #宣告 NAME = NAME.render(f"文本{變數}", 平滑值, 文字顏色, 背景顏色)       #render << 設定文本     #f 是用來表示一個格式化字串（formatted string）的開頭
-    test = head_font.render(f" collision_x: {round(collision_x, 2)}  round_vx: {round_vx} stand: {stand}" ,True,(0,0,0))    #顯示參數(方便測試Debug用)
-    #顯示測試參數
+    # 宣告 NAME = NAME.render(f"文本{變數}", 平滑值, 文字顏色, 背景顏色)       # render << 設定文本     # f 是用來表示一個格式化字串（formatted string）的開頭
+    test = head_font.render(f" collision_x: {round(collision_x, 2)}  round_vx: {round_vx} stand: {stand}" ,True,(0,0,0))    # 顯示參數(方便測試Debug用)
+    # 顯示測試參數
     screen.blit(test,(10,10))
-    #顯示版本
+    # 顯示版本
     screen.blit(version,(width-80,height - font_size_v))
     
     
     # 更新畫面
     pygame.display.flip()
-
     # 控制遊戲迴圈速度
     clock.tick(clock_hz)
