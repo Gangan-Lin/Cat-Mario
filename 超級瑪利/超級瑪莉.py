@@ -145,7 +145,7 @@ def map_1 (player_x, velocity_x, player_y, velocity_y, height, player_sizey, map
     ]
     create_time = len(object)
     def_return = collision(player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage, collision_x, collision_y,object)
-    #map_draw(player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage, collision_x, collision_y,object)
+    map_draw(player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage, collision_x, collision_y,object)
    
     return def_return
     #map_2

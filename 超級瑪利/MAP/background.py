@@ -21,3 +21,6 @@ print(f"{my_dog.name} is {my_dog.age} years old.")
 
 # 调用实例方法
 my_dog.bark()
+
+
+
