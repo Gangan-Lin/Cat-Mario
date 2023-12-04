@@ -87,23 +87,23 @@ def collision (player_x, velocity_x, player_y, velocity_y, height, player_sizey,
             time_c_int = round(time_c, 0)
             if collision_x == 0 :
                 
-                if player_x + math.copysign(0.001, velocity_x) > (object[time_c_int][0] - map_x - player_sizex) and (player_x + player_sizex) <= (object[time_c_int][0] - map_x) and (player_y + math.copysign(0.001, velocity_y)) > (object[time_c_int][1] - player_sizey) and ( player_y + math.copysign(0.001, velocity_y)) < (object[time_c_int][1] + object[time_c_int][3]) : #  碰撞(偵測x) >> 左(物體的) 
+                if player_x + math.copysign(0.001, velocity_x) > (object[time_c_int][0] - map_x - player_sizex) and (player_x + player_sizex) <= (object[time_c_int][0] - map_x) and (player_y + math.copysign(0.001, velocity_y)) > (height - object[time_c_int][1] - player_sizey) and ( player_y + math.copysign(0.001, velocity_y)) < (height - object[time_c_int][1] + object[time_c_int][3]) : #  碰撞(偵測x) >> 左(物體的) 
                     collision_x = 1
                     
                 else :
                     collision_x = 0
-                if player_x + math.copysign(0.001, velocity_x) < (object[time_c_int][0] - map_x + object[time_c_int][2]) and player_x > (object[time_c_int][0] - map_x + object[time_c_int][2]) and (player_y + math.copysign(0.001, velocity_y)) > (object[time_c_int][1] - player_sizey) and ( player_y + math.copysign(0.001, velocity_y)) < (object[time_c_int][1] + object[time_c_int][3]) : # 碰撞(偵測x) >> 右(物體的)
+                if player_x + math.copysign(0.001, velocity_x) < (object[time_c_int][0] - map_x + object[time_c_int][2]) and player_x > (object[time_c_int][0] - map_x + object[time_c_int][2]) and (player_y + math.copysign(0.001, velocity_y)) > (height - object[time_c_int][1] - player_sizey) and ( player_y + math.copysign(0.001, velocity_y)) < (height - object[time_c_int][1] + object[time_c_int][3]) : # 碰撞(偵測x) >> 右(物體的)
                     collision_x = -1
             
     if loopstage == 5 :
         for time_c in range(0, create_time,1) :  #and (player_y + player_sizey) <= object[time_c][1] 
             time_c_int = round(time_c, 0)
             if collision_y == 0 :
-                if player_y + math.copysign(0.001, velocity_y) > (object[time_c_int][1] - player_sizey) and (player_y + player_sizey) < object[time_c_int][1] and (player_x + math.copysign(0.001, velocity_x)) > (object[time_c_int][0] - map_x - player_sizex) and (player_x + math.copysign(0.001, velocity_x)) < (object[time_c_int][0] - map_x + object[time_c_int][2]): # 碰撞(偵測y) >> 上(物體的)
+                if player_y + math.copysign(0.001, velocity_y) > (height - object[time_c_int][1] - player_sizey) and (player_y + player_sizey) < (height - object[time_c_int][1]) and (player_x + math.copysign(0.001, velocity_x)) > (object[time_c_int][0] - map_x - player_sizex) and (player_x + math.copysign(0.001, velocity_x)) < (object[time_c_int][0] - map_x + object[time_c_int][2]): # 碰撞(偵測y) >> 上(物體的)
                     collision_y = -1
                 else :
                     collision_y = 0
-                if player_y + math.copysign(0.001, velocity_y) < (object[time_c_int][1] + object[time_c_int][3]) and player_y > (object[time_c_int][1] + object[time_c_int][3]) and (player_x + math.copysign(0.001, velocity_x)) > (object[time_c_int][0] - map_x - player_sizex) and (player_x + math.copysign(0.001, velocity_x)) < (object[time_c_int][0] - map_x + object[time_c_int][2]): # 碰撞(偵測y) >> 下(物體的)
+                if player_y + math.copysign(0.001, velocity_y) < (height - object[time_c_int][1] + object[time_c_int][3]) and player_y > (height - object[time_c_int][1] + object[time_c_int][3]) and (player_x + math.copysign(0.001, velocity_x)) > (object[time_c_int][0] - map_x - player_sizex) and (player_x + math.copysign(0.001, velocity_x)) < (object[time_c_int][0] - map_x + object[time_c_int][2]): # 碰撞(偵測y) >> 下(物體的)
                     collision_y = 1
     def_return = [collision_x , collision_y]
     return def_return
@@ -113,9 +113,9 @@ def map_draw (player_x, velocity_x, player_y, velocity_y, height, player_sizey, 
         create_time = len(object)
         for time_c in range(0, create_time, 1) :
             time_c_int = round(time_c, 0)
-            pygame.draw.rect(screen, blue, (object[time_c_int][0] - map_x, object[time_c_int][1], object[time_c_int][2], object[time_c_int][3]))
+            pygame.draw.rect(screen, blue, (object[time_c_int][0] - map_x, (height - object[time_c_int][1]), object[time_c_int][2], object[time_c_int][3]))
 #地圖檔
-    # background.py
+    # boundary
 def boundary (player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage, collision_x, collision_y) :
     import math
     if loopstage == 4 :
@@ -134,10 +134,10 @@ def boundary (player_x, velocity_x, player_y, velocity_y, height, player_sizey, 
     #map_1
 def map_1 (player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage, collision_x, collision_y) :
     object = [
-        [200, (height - 60), 30, 30 ],
-        [400, (height - 110), 30, 30 ],
-        [1000, (height - 110), 30, 30 ],
-        [1200, (height - 110), 30, 30 ]
+        [200,  60, 30, 90 ],
+        [400, 110, 30, 30 ],
+        [1000,  110, 30, 30 ],
+        [1200,  110, 30, 300 ]
        
     ]
     create_time = len(object)
@@ -145,7 +145,7 @@ def map_1 (player_x, velocity_x, player_y, velocity_y, height, player_sizey, map
     map_draw(player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage, collision_x, collision_y,object)
    
     return def_return
-
+    #map_2
 
 
 
@@ -261,11 +261,7 @@ while True:
         collision_x = 0
         collision_x = boundary(player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage, collision_x, collision_y)[0] # collision_x = 回傳的 return 值
         if collision_x == 0 :
-            
-            collision_x = map_1 (player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage, collision_x, collision_y)[0]
-
-        
-
+             collision_x = map_1 (player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage, collision_x, collision_y)[0]
         if collision_x == 0 :
             player_x = player_x + math.copysign(0.001, velocity_x)
             if player_x + player_sizex >= width//2 :
@@ -279,8 +275,7 @@ while True:
         loopstage = 5  # 迴圈第5階段
         collision_y = 0
         collision_y = boundary(player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage, collision_x, collision_y)[1]
-        if collision_y == 0 :
-            collision_y = map_1 (player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage, collision_x, collision_y)[1]
+        collision_y = map_1 (player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage, collision_x, collision_y)[1]
 
        
         
