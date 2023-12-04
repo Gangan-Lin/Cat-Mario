@@ -82,14 +82,38 @@ velocitymax_x = 4 * (60 / clock_hz)                     #x方向最大速度
 velocitymini_x = 0.08 * (60 / clock_hz)                 #x方向最小速度
 gravitational_acceleration = 0.12 * (60 / clock_hz)     #重力加速度
 
-
-
+#碰撞判斷模組
+def collision (player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage, collision_x, collision_y,object) :
+    create_time = len(object)
+    if loopstage == 4 :
+        for time_c in range(0, create_time) : #and (player_x + player_sizex) <= object[time_c][0] 
+            if player_x + math.copysign(0.001, velocity_x) > (object[time_c][0] - map_x - player_sizex) and (player_x + player_sizex) <= (object[time_c][0] - map_x) and (player_y + math.copysign(0.001, velocity_y)) < (object[time_c][1] + player_sizey) and ( player_y + math.copysign(0.001, velocity_y)) > (object[time_c][1] - object[time_c][3]) : #  碰撞(偵測x) >> 左(物體的) 
+                collision_x = 1
+            else :
+                collision_x = 0
+            if player_x + math.copysign(0.001, velocity_x) < (object[time_c][0] - map_x + object[time_c][2]) and player_x > (object[time_c][0] - map_x + object[time_c][2]) and (player_y + math.copysign(0.001, velocity_y)) < (object[time_c][1] + player_sizey) and ( player_y + math.copysign(0.001, velocity_y)) > (object[time_c][1] - object[time_c][3]) : # 碰撞(偵測x) >> 右(物體的)
+                collision_x = -1
+            
+    if loopstage == 5 :
+        for time_c in range(0, create_time) :  #and (player_y + player_sizey) <= object[time_c][1] 
+            if player_y + math.copysign(0.001, velocity_y) > (object[time_c][1] - player_sizey) and (player_y + player_sizey) < object[time_c][1] and (player_x + math.copysign(0.001, velocity_x)) > (object[time_c][0] - map_x - player_sizex) and (player_x + math.copysign(0.001, velocity_x)) < (object[time_c][0] - map_x + object[time_c][2]): # 碰撞(偵測y) >> 上(物體的)
+                collision_y = -1
+            else :
+                collision_y = 0
+            if player_y + math.copysign(0.001, velocity_y) < (object[time_c][1] + object[time_c][3]) and player_y > (object[time_c][1] + object[time_c][3]) and (player_x + math.copysign(0.001, velocity_x)) > (object[time_c][0] - map_x - player_sizex) and (player_x + math.copysign(0.001, velocity_x)) < (object[time_c][0] - map_x + object[time_c][2]): # 碰撞(偵測y) >> 下(物體的)
+                collision_y = 1
+    def_return = [collision_x , collision_y]
+    return def_return
+#地圖繪製模組
+def map_draw (player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage, collision_x, collision_y,object) :
+    if loopstage == 9 :
+        create_time = len(object)
+        for time_c in range(0, create_time) :
+            pygame.draw.rect(screen, blue, (object[time_c][0] - map_x, object[time_c][1], object[time_c][2], object[time_c][3]))
 #地圖檔
     # background.py
-def boundary (player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage) :
+def boundary (player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage, collision_x, collision_y) :
     import math
-    collision_x = 0
-    collision_y = 0
     if loopstage == 4 :
         if player_x + math.copysign(0.001, velocity_x) >= 0 :
             collision_x = 0
@@ -104,15 +128,19 @@ def boundary (player_x, velocity_x, player_y, velocity_y, height, player_sizey, 
     return def_return
     
     #map_1
-def map_1 (player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage) :
+def map_1 (player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage, collision_x, collision_y) :
     object = [
         [200, height - 30, 30, 30 ]
     ]
-    
+    create_time = len(object)
+    def_return = collision(player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage, collision_x, collision_y,object)
+    map_draw(player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage, collision_x, collision_y,object)
+    '''
     if loopstage == 9 :
         create_time = len(object)
         for time_c in range(0, create_time) :
-            pygame.draw.rect(screen, blue, (object[time_c][0], object[time_c][1], object[time_c][2], object[time_c][3]))
+            pygame.draw.rect(screen, blue, (object[time_c][0] - map_x, object[time_c][1], object[time_c][2], object[time_c][3]))'''
+    return def_return
 
 
 
@@ -226,8 +254,10 @@ while True:
     n = int(abs(round_vx)*1000)  
     for time_v in range(0,n):
         loopstage = 4  # 迴圈第4階段
-        collision_x = boundary(player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage)[0] # collision_x = 回傳的 return 值
-        
+        collision_x = 0
+        collision_x = boundary(player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage, collision_x, collision_y)[0] # collision_x = 回傳的 return 值
+        if collision_x == 0 :
+            collision_x = map_1 (player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage, collision_x, collision_y)[0]
 
         
 
@@ -242,8 +272,10 @@ while True:
     n = int(abs(round_vy)*1000)  
     for time_v in range(0,n):
         loopstage = 5  # 迴圈第5階段
-        collision_y = boundary(player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage)[1]
-        
+        collision_y = 0
+        collision_y = boundary(player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage, collision_x, collision_y)[1]
+        if collision_y == 0 :
+            collision_y = map_1 (player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage, collision_x, collision_y)[1]
 
        
         
@@ -279,7 +311,7 @@ while True:
 
     # 畫出地圖
     loopstage = 9  # 迴圈第9階段
-    map_1 (player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage) 
+    map_1 (player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage, collision_x, collision_y) 
 
     
     
@@ -287,7 +319,7 @@ while True:
     head_font = pygame.font.SysFont(None,20)
 
     # 宣告 NAME = NAME.render(f"文本{變數}", 平滑值, 文字顏色, 背景顏色)       # render << 設定文本     # f 是用來表示一個格式化字串（formatted string）的開頭
-    test = head_font.render(f" collision_x: {round(collision_x, 2)}  round_vx: {round_vx} stand: {stand}" ,True,(0,0,0))    # 顯示參數(方便測試Debug用)
+    test = head_font.render(f" collision_x: {round(collision_x, 2)}  round_vx: {round_vx} map_x: {map_x}" ,True,(0,0,0))    # 顯示參數(方便測試Debug用)
     # 顯示測試參數
     screen.blit(test,(10,10))
     # 顯示版本
