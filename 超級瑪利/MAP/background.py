@@ -1,15 +1,23 @@
-# background.py
-def boundary (player_x, velocity_x, player_y, velocity_y, height, player_sizey, map_x, loopstage) :
-    import math
-    collision_x = 0
-    collision_y = 0
-    if player_x + math.copysign(0.001, velocity_x) >= 0 :
-        collision_x = 0
-    elif player_x + math.copysign(0.001, velocity_x) <= 0:
-        collision_x = -1
-    if player_y + math.copysign(0.001, velocity_y) <= (height - player_sizey) :
-        collision_y = 0
-    elif player_y + math.copysign(0.001, velocity_y) >= (height - player_sizey) :
-        collision_y = -1
-    def_return = [collision_x , collision_y]
-    return def_return
+# 定义一个简单的类
+class Dog:
+    # 类属性
+    species = "Canis familiaris"
+
+    # 构造方法
+    def __init__(self , age,name):
+        # 实例属性
+        self.name = name
+        self.age = age
+
+    # 实例方法
+    def bark(self):
+        print(f"{self.name} says Woof!")
+
+# 创建类的实例
+my_dog = Dog(name="Buddy", age=3)
+
+# 访问实例属性
+print(f"{my_dog.name} is {my_dog.age} years old.")
+
+# 调用实例方法
+my_dog.bark()
