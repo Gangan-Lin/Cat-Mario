@@ -20,9 +20,6 @@ screen.fill((255,255,255))      #fill << 填滿
 white = (255,255,255)
 blue = (0,0,255 )
 
-
-
-
 # 字體大小
 font_size_v = 20                            # version字體大小
 
@@ -77,7 +74,7 @@ jump_second = 1                                         # 第二段跳倍數
 jump_penalty = 1                                        # 第二段跳對x的速度懲罰(基本上就是在第二段跳時對當前速度影響的倍率)
 jump_y = 4 * (60 / clock_hz)                                              # y方向跳躍加速度
 accelerationadd_x = 0.2 * (60 / clock_hz)* (60 / clock_hz)               # x方向操縱加速度
-acceleration_penalty = 0.8                              # 空中速度懲罰倍率 (影響在空中時的x方向加速度)
+acceleration_penalty = 0.8                              # 空中速度懲罰倍率 (影響在空中時的x方向加速度) << 目前有問題先不使用
 resistance_x = 0.3 * (60 / clock_hz)* (60 / clock_hz)                    # x方向基礎阻力 ( < accelerationadd_x/2)
 velocitymax_x = 4 * (60 / clock_hz)                     # x方向最大速度
 velocitymini_x = 0.08 * (60 / clock_hz)                 # x方向最小速度
@@ -110,14 +107,14 @@ def keymove_model (key_left, key_right, key_up, velocity_x, velocity_y, velocity
         if stand == 1 :
             acceleration_x = accelerationadd_x*-1                               # 加速度直設為 負的 accelerationadd_x << x方向操縱加速度
         else :
-            acceleration_x = accelerationadd_x*acceleration_penalty*-1          # 在空中時乘上速度懲罰
+            acceleration_x -= accelerationadd_x#*acceleration_penalty          # 在空中時乘上速度懲罰
     elif key_left == 1 and key_right == 0 :                                     # 當向左鍵按下且向左速度大於或等於最大速讀值
         velocity_x = velocitymax_x*-1                                           # 將速度設為 負的 velocitymax_x << x方向最大速度
     if key_right == 1 and key_left == 0 and velocity_x < velocitymax_x :        # 當向右鍵按下且向右速度數值 < 最大速度值
         if stand == 1 :
             acceleration_x = accelerationadd_x                                  # 加速度直設為 正的 accelerationadd_x << x方向操縱加速度
         else :
-            acceleration_x = accelerationadd_x*acceleration_penalty             # 在空中時乘上速度懲罰
+            acceleration_x = accelerationadd_x#*acceleration_penalty             # 在空中時乘上速度懲罰
     elif key_right == 1 and key_left == 0 :                                     # 當向右鍵按下且向右速度大於或等於最大速讀值
         velocity_x = velocitymax_x                                              # 將速度設為 正的 velocitymax_x << x方向最大速度
     if key_up == 1 and hold >= 1 :                                              # 當向上鍵按下且 stand >= 1 << 跳躍鍵按下時長判定
@@ -319,7 +316,7 @@ while True:
     head_font = pygame.font.SysFont(None,20)
 
     # 宣告 NAME = NAME.render(f"文本{變數}", 平滑值, 文字顏色, 背景顏色)       # render << 設定文本     # f 是用來表示一個格式化字串（formatted string）的開頭
-    test = Test.render(f" key_left: {key_left}  key_right: {key_right} hold: {hold}" ,True,(0,0,0))    # 顯示參數(方便測試Debug用)
+    test = Test.render(f" key_left: {key_left}  key_right: {key_right} stand: {stand}" ,True,(0,0,0))    # 顯示參數(方便測試Debug用)
     # 顯示測試參數
     screen.blit(test,(10,10))
     # 顯示版本
