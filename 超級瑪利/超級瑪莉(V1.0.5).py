@@ -28,27 +28,13 @@ Test = pygame.font.SysFont(None,20)
 Version = pygame.font.SysFont(None,font_size_v)
 
 # 版本(寫好玩的)
-version = Version.render("V1.0.4", True, (0, 0, 0))     # 放在這裡純粹方便改
+version = Version.render("V1.0.5", True, (0, 0, 0))     # 放在這裡純粹方便改
 
 # 各項參數 >> 方便知道什麼變數幹嘛用的
-    # 人物碰撞大小
-#player_sizex = 10
-#player_sizey = 10
-
-    # 人物初始位置
-#player_x = 1
-#player_y = height - player_sizey - 100
-
+clock_hz = 60                                           # 就是clock(問題太多，先暫訂60就好)
     # 迴圈階段
 loopstage = 0                              
 gamestage = 0                              # 遊戲階段(關卡 暫停(-1) 主畫面 死亡)
-
-    # 按鍵
-# key_right = 0
-# key_left = 0
-# key_up = 0
-
-
     # 地圖x(以最左為0)
 map_x = 0                                   
     # 腳色最左能到的距離
@@ -59,70 +45,25 @@ collision_y = 0                             # 碰撞判定 y     1:碰撞點為�
 stand = 0                                   # 站立判定
 jump = 0                                    # 跳躍次數判定
 hold = 0                                    # 跳躍鍵按下時長判定
-     # 速度
+     # 變數
 velocity_x = 0                              # x方向速度
 velocity_y = 0                              # y方向速度
     # 遊戲常數
-clock_hz = 60                                           # 就是clock(問題太多，先暫訂60就好)
+velocitymax_x = 4 * (60 / clock_hz)                     # x方向最大速度
+velocitymini_x = 0.08 * (60 / clock_hz)                 # x方向最小速度
+accelerationadd_x = 0.2 * (60 / clock_hz)* (60 / clock_hz)               # x方向操縱加速度
+acceleration_penalty = 0.8                              # 空中速度懲罰倍率 (影響在空中時的x方向加速度) << 目前有問題先不使用
+resistance_x = 0.3 * (60 / clock_hz)* (60 / clock_hz)                    # x方向基礎阻力 ( < accelerationadd_x/2)
 jump_delay = 12 * (clock_hz / 60)                       # 長按大跳時長判定 (5~20就好)
 jump_award = 0.6                                        # 大跳倍數(0.55約等於沒有，別問我為什麼會這樣，我想破頭都還沒想出來)
 jump_second = 1                                         # 第二段跳倍數
 jump_penalty = 1                                        # 第二段跳對x的速度懲罰(基本上就是在第二段跳時對當前速度影響的倍率)
 jump_y = 4 * (60 / clock_hz)                                              # y方向跳躍加速度
-accelerationadd_x = 0.2 * (60 / clock_hz)* (60 / clock_hz)               # x方向操縱加速度
-acceleration_penalty = 0.8                              # 空中速度懲罰倍率 (影響在空中時的x方向加速度) << 目前有問題先不使用
-resistance_x = 0.3 * (60 / clock_hz)* (60 / clock_hz)                    # x方向基礎阻力 ( < accelerationadd_x/2)
-velocitymax_x = 4 * (60 / clock_hz)                     # x方向最大速度
-velocitymini_x = 0.08 * (60 / clock_hz)                 # x方向最小速度
+
 gravitational_acceleration = 0.12 * (60 / clock_hz)* (60 / clock_hz)     # 重力加速度
 
 class physics :
-    # clock_hz = 60
-    #     # 設定畫面邊界大小
-    # width, height = 1280, 720
-    #     # 顏色
-    # white = (255,255,255)
-    # blue = (0,0,255 )
-    #     # 各項參數 >> 方便知道什麼變數幹嘛用的
-    #     # 迴圈階段
-    # loopstage = 0                              
-    # gamestage = 0                              # 遊戲階段(關卡 暫停(-1) 主畫面 死亡)
-    #     # 按鍵
-    # key_right = 0
-    # key_left = 0
-    # key_up = 0
-    #     # 地圖x(以最左為0)
-    # map_x = 0                                   
-    #     # 腳色最左能到的距離
-    # max_x = width // 2
-    #     # 判定
-    # collision_x = 0                             # 碰撞判定 x     1:碰撞點為角色右邊  0:無碰撞    -1:碰撞點為物體左邊
-    # collision_y = 0                             # 碰撞判定 y     1:碰撞點為角色上方  0:無碰撞    -1:碰撞點為物體下方
-    # stand = 0                                   # 站立判定
-    # jump = 0                                    # 跳躍次數判定
-    # hold = 0                                    # 跳躍鍵按下時長判定
-    #     # 速度
-    # velocity_x = 0                              # x方向速度
-    # velocity_y = 0                              # y方向速度
-    #     # 加速度
-    # acceleration_x = 0                          # x方向加速度
-    # acceleration_y = 0                          # y方向加速度
-    #     # 遊戲常數
-    # velocitymax_x = 4 * (60 / clock_hz)                     # x方向最大速度
-    # velocitymini_x = 0.08 * (60 / clock_hz)                 # x方向最小速度
-    # accelerationadd_x = 0.2 * (60 / clock_hz)* (60 / clock_hz)               # x方向操縱加速度
-    # acceleration_penalty = 0.8                              # 空中速度懲罰倍率 (影響在空中時的x方向加速度) << 目前有問題先不使用
-    # resistance_x = 0.3 * (60 / clock_hz)* (60 / clock_hz)                    # x方向基礎阻力 ( < accelerationadd_x/2)
-    # jump_award = 0.6                                        # 大跳倍數(0.55約等於沒有，別問我為什麼會這樣，我想破頭都還沒想出來)
-    # jump_second = 1                                         # 第二段跳倍數
-    # jump_penalty = 1                                        # 第二段跳對x的速度懲罰(基本上就是在第二段跳時對當前速度影響的倍率)
-    # jump_y = 4 * (60 / clock_hz)                                              # y方向跳躍加速度
-    # jump_delay = 12 * (clock_hz / 60)                       # 長按大跳時長判定 (5~20就好)
-
-    #                                            # 就是clock(問題太多，先暫訂60就好)
-    # gravitational_acceleration = 0.12 * (60 / clock_hz)* (60 / clock_hz)     # 重力加速度
     
-
     def __init__(self, object_map, player_sizex, player_sizey, player_x, player_y) :
         # player 基礎設置
         self.player_sizex = player_sizex
@@ -157,7 +98,6 @@ class physics :
         self.max_x = max_x
         self.map_x = map_x 
         self.object_map = object_map # 腳色當下所在的地圖
-    #def loopstage_setting (self) :
 
 
     def keypress_model(self) :
@@ -182,14 +122,14 @@ class physics :
             if self.stand == 1 :
                 acceleration_x = self.accelerationadd_x*-1                               # 加速度直設為 負的 accelerationadd_x << x方向操縱加速度
             else :
-                acceleration_x -= self.accelerationadd_x#*acceleration_penalty          # 在空中時乘上速度懲罰
+                acceleration_x -= self.accelerationadd_x#*self.acceleration_penalty          # 在空中時乘上速度懲罰
         elif key_1.key_left == 1 and key_1.key_right == 0 :                                     # 當向左鍵按下且向左速度大於或等於最大速讀值
             self.velocity_x = self.velocitymax_x*-1                                           # 將速度設為 負的 velocitymax_x << x方向最大速度
         if key_1.key_right == 1 and key_1.key_left == 0 and self.velocity_x < self.velocitymax_x :        # 當向右鍵按下且向右速度數值 < 最大速度值
             if self.stand == 1 :
                 acceleration_x = self.accelerationadd_x                                  # 加速度直設為 正的 accelerationadd_x << x方向操縱加速度
             else :
-                acceleration_x = self.accelerationadd_x#*acceleration_penalty             # 在空中時乘上速度懲罰
+                acceleration_x = self.accelerationadd_x#*self.acceleration_penalty             # 在空中時乘上速度懲罰
         elif key_1.key_right == 1 and key_1.key_left == 0 :                                     # 當向右鍵按下且向右速度大於或等於最大速讀值
             self.velocity_x = self.velocitymax_x                                              # 將速度設為 正的 velocitymax_x << x方向最大速度
         if key_1.key_up == 1 and self.hold >= 1 :                                              # 當向上鍵按下且 stand >= 1 << 跳躍鍵按下時長判定
@@ -212,7 +152,6 @@ class physics :
             self.hold = 0
         self.velocity_x = self.velocity_x + acceleration_x         # 將加速度導入速度
         self.velocity_y = self.velocity_y + acceleration_y + gravitational_acceleration
-        #return [self.velocity_x, velocity_y, jump, self.hold, self.stand]      # 回傳
 
         # 阻力模組
     def resistance_model (self) :
@@ -234,7 +173,6 @@ class physics :
             self.velocity_x = self.velocitymax_x
         if self.velocity_x < (self.velocitymax_x-self.velocitymini_x)*-1 :
             self.velocity_x = self.velocitymax_x*-1
-        #return self.velocity_x
 
         # 移動模組
     def move_model(self):
@@ -256,7 +194,6 @@ class physics :
             self.stand = 0
         if self.collision_y == -1 :
             (self.hold, self.jump, self.stand) = (120, 2, 1)
-        #return [self.player_x, self.player_y, self.velocity_x, self.velocity_y, self.map_x] 
 
         # 碰撞判斷模組                                                                                                      
     def collision_model (self) :
@@ -283,9 +220,6 @@ class physics :
                         self.collision_y = -1
                     elif player_collision_box.colliderect(object_collision_box) : # 碰撞(偵測y) >> 下(物體的)
                             self.collision_y = 1
-
-        def_return = [self.collision_x , self.collision_y]
-        #return def_return
 
         # 碰撞方塊繪製模組
     def collisionbox_draw_model (self) :
