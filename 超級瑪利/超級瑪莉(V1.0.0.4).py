@@ -28,7 +28,7 @@ Test = pygame.font.SysFont(None,20)
 Version = pygame.font.SysFont(None,font_size_v)
 
 # 版本(寫好玩的)
-version = Version.render("V1.0.4", True, (0, 0, 0))     # 放在這裡純粹方便改
+version = Version.render("V1.0.0.4", True, (0, 0, 0))     # 放在這裡純粹方便改
 
 
 # 各項參數 >> 方便知道什麼變數幹嘛用的

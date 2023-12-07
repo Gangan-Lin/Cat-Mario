@@ -1,3 +1,6 @@
+# 更新報告
+    # 將物理模擬模組化
+
 # 導入sys & pygame導入sys & pygame
 import sys
 import pygame
@@ -28,7 +31,7 @@ Test = pygame.font.SysFont(None,20)
 Version = pygame.font.SysFont(None,font_size_v)
 
 # 版本(寫好玩的)
-version = Version.render("V1.0.5", True, (0, 0, 0))     # 放在這裡純粹方便改
+version = Version.render("V1.0.0.5", True, (0, 0, 0))     # 放在這裡純粹方便改
 
 # 各項參數 >> 方便知道什麼變數幹嘛用的
 clock_hz = 60                                           # 就是clock(問題太多，先暫訂60就好)
