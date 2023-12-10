@@ -73,14 +73,14 @@ gravitational_acceleration = 0.12 * (60 / clock_hz)* (60 / clock_hz)     # 重�
 real = 0
 # 圖片路徑
     # map image 路徑
-map_0_image_path = '.\Cat-Mario\超級瑪利\image\map_0\map_0.png'
-map_1_image_path = '.\Cat-Mario\超級瑪利\image\player\cat_right.png'
-map_2_image_path = '.\Cat-Mario\超級瑪利\image\player\cat_right.png'
+map_0_image_path = '.\超級瑪利\image\map_0\map_0.png'
+map_1_image_path = '.\超級瑪利\image\player\cat_right.png'
+map_2_image_path = '.\超級瑪利\image\player\cat_right.png'
     # pause image 路徑
-pause_image_path = '.\Cat-Mario\超級瑪利\image\pause\pause_image.png'
+pause_image_path = '.\超級瑪利\image\pause\pause_image.png'
     # player image 路徑
-player_image_right = '.\Cat-Mario\超級瑪利\image\player\cat_right.png'
-player_image_left = '.\Cat-Mario\超級瑪利\image\player\cat_left.png'
+player_image_right = '.\超級瑪利\image\player\cat_right.png'
+player_image_left = '.\超級瑪利\image\player\cat_left.png'
 class physics :
     
     def __init__(self, object_map, trap_map, player_sizex, player_sizey, player_x, player_y, map) :
