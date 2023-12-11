@@ -66,9 +66,9 @@ jump_delay = 10 * (clock_hz / 60)                       # 長按大跳時長判�
 jump_award = 0.6                                        # 大跳倍數(0.55約等於沒有，別問我為什麼會這樣，我想破頭都還沒想出來)
 jump_second = 1                                         # 第二段跳倍數
 jump_penalty = 1                                        # 第二段跳對x的速度懲罰(基本上就是在第二段跳時對當前速度影響的倍率)
-jump_y = 4 * (60 / clock_hz)                                              # y方向跳躍加速度
+jump_y = 5.05 * (60 / clock_hz)                                              # y方向跳躍加速度
 
-gravitational_acceleration = 0.12 * (60 / clock_hz)* (60 / clock_hz)     # 重力加速度
+gravitational_acceleration = 0.18 * (60 / clock_hz)* (60 / clock_hz)     # 重力加速度
 # 規則
 real = 0
 # 圖片路徑
@@ -90,7 +90,7 @@ class physics :
         # player 判定
         self.collision_x = collision_x
         self.collision_y = collision_y
-        self.collision_trap = collision_trap
+        self.collision_trap1 = collision_trap
         self.hold = hold
         self.stand = stand
         # player 變數
@@ -284,15 +284,21 @@ class physics :
         # 迴圈建立變數
         for i in range(0, len(map_trap)):
             trap_name = f"trap_{i}"  
-            self.trap_all[trap_name] = Trap(map_trap[i][0], map_trap[i][1], map_trap[i][2], map_trap[i][3], map_trap[i][4],map_trap[i][5] , map_trap[i][6])
+            self.trap_all[trap_name] = Trap(map_trap[i][0], map_trap[i][1], map_trap[i][2], map_trap[i][3], map_trap[i][4],map_trap[i][5] , map_trap[i][6], map_trap[i][7])
             all_sprites_trap.add(self.trap_all[trap_name])
+    
+    def collision_trap1_model(self) :
+        collision_trap1_list = pygame.sprite.spritecollide(player_1.player, all_sprites_trap, False)
+        if len(collision_trap1_list) >= 1 :
+            self.collision_trap1 = 1 
+    
     
     def map_collision (self) :
         self.collision_x = 0
         self.collision_y = 0
         self.boundary()
         self.collision_model()
-    
+        self.collision_trap1_model()
     def player_draw (self) :
         pygame.draw.rect(screen, blue, (self.player_x, self.player_y, self.player_sizex, self.player_sizey), 2)
     def image_update (self) :
@@ -303,7 +309,7 @@ class physics :
             trap_setting = variable_value
             variable_value.rect.x = variable_value.original_x - self.map_x
             variable_value.trigger(self.player_x, self.player_y, self.map_x)
-            
+            variable_value.physics_simulation_model(self.player_x, self.map_x)
 
         if self.map == 0 :
             self.map_image.change_image(map_0_image_path)
@@ -368,7 +374,7 @@ class Map(pygame.sprite.Sprite) :
     def change_image(self,new_image) :
         self.image = pygame.image.load(new_image).convert_alpha()
 class Trap(pygame.sprite.Sprite) :
-    def __init__(self, x, y, trigger_position, end_x, end_y, velocity_trap, trap_image) :
+    def __init__(self, x, y, trigger_position, end_x, end_y, velocity_trap, trap_image, physics_simulation) :
         super().__init__()
         self.image_path = trap_image
         self.image = pygame.image.load(self.image_path).convert_alpha()
@@ -380,9 +386,10 @@ class Trap(pygame.sprite.Sprite) :
         self.end_x = end_x
         self.end_y = height - end_y
         self.velocity_trap = velocity_trap
+        self.trap_velocity_y = 0
+        self.physics_simulation = physics_simulation
     def trigger(self, player_x, player_y, map_x) :
-        if player_x + map_x >= self.trigger_position :
-
+        if player_x + map_x >= self.trigger_position and self.physics_simulation == 0 :
             if self.original_x  != self.end_x :
                 self.rect.x += (self.end_x - self.original_x)/(self.velocity_trap*(clock_hz))
             if self.original_y > self.end_y :
@@ -391,7 +398,11 @@ class Trap(pygame.sprite.Sprite) :
             if self.original_y < self.end_y :
                 if self.rect.y <= self.end_y :
                     self.rect.y += (self.end_y - self.original_y)/(self.velocity_trap*(clock_hz))
-
+    def physics_simulation_model(self, player_x, map_x) :
+        if player_x + map_x >= self.trigger_position and self.physics_simulation == 1 :
+            self.trap_velocity_y += gravitational_acceleration
+            self.rect.y += self.trap_velocity_y
+    
 
 
 def game_test() :
@@ -424,13 +435,13 @@ map_1_object = [
         [0,  20, 300000, 20 ],
         [400, 90, 300, 30 ],
         [1000,  110, 30, 30 ],
-        [1200,  110, 30, 300 ]
+        [1200,  165, 30, 450 ]
        
     ]
     # 格式 [起始位置_X, 起始位置_Y, 觸發位置(腳色在地圖上的位置), 終點位置_X, 終點位置_Y, 移動速度, 陷阱圖片]
 map_1_trap = [
-        [12, 100, 12, 12, 400, 1, player_image_right],
-        [100, 100, 100, 100, 400, 1, player_image_left]
+        [12, 400, 12, 400, 400, 1, player_image_right, 1],
+        [100, 600, 100, 600, 400, 1, player_image_left, 1]
     ]
 
     # map_2
@@ -443,8 +454,8 @@ map_2_object = [
     ]
     # 觸發 [起始位置_X, 起始位置_Y, 觸發位置(腳色在地圖上的位置), 終點位置_X, 終點位置_Y, 移動速度, 陷阱圖片]
 map_2_trap = [
-        [1600, 300, 1500, 1600, 600, 1, player_image_right],
-        [100, 300, 100, 100, 400, 1, player_image_right]
+        [1600, 300, 1500, 1600, 600, 1, player_image_right, 0],
+        [100, 300, 100, 100, 400, 1, player_image_right, 0]
     ]
 key_1 = physics(0, 0, 0, 0, 0, 0, 0)      
 # (地圖物件, 地圖陷阱, 腳色寬度, 腳色長度, 腳色出現位置_x, 腳色出現位置_y, 第幾關, 難度)   # 難度0 : 二段跳  # 難度1 : 關閉二段跳  # 難度2 : 關閉二段跳 + 踩地才能加速(反正我覺得這玩意兒不是給人玩的)
@@ -519,7 +530,7 @@ while True:
     head_font = pygame.font.SysFont(None,20)
 
     # 宣告 NAME = NAME.render(f"文本{變數}", 平滑值, 文字顏色, 背景顏色)       # render << 設定文本     # f 是用來表示一個格式化字串（formatted string）的開頭
-    test = Test.render(f" gamestage: {gamestage}  player_1.player_x: {player_1.player_x} player_1.velocity_x: {player_1.velocity_x} press the 'Number' key  0 >> Home screen  1 >> level1    2 >> level2    space >> pause " ,True,(0,0,0))    # 顯示參數(方便測試Debug用)
+    test = Test.render(f" gamestage: {gamestage}  player_1.player_x: {player_1.player_x} player_1.collision_trap1: {player_1.collision_trap1} press the 'Number' key  0 >> Home screen  1 >> level1    2 >> level2    space >> pause " ,True,(0,0,0))    # 顯示參數(方便測試Debug用)
     # 顯示測試參數
     screen.blit(test,(10,10))
     # 顯示版本
