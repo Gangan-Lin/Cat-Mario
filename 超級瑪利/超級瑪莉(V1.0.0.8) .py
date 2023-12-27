@@ -812,7 +812,7 @@ while True:
     sprites_updata_model()
 
     # 繪製地圖
-    #all_sprites_map.draw(screen)
+    all_sprites_map.draw(screen)
     all_sprites_button.draw(screen)
 
     if gamestage > 0 :
