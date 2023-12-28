@@ -332,16 +332,10 @@ class physics :
         self.player.rect.y = self.player_y
         self.map_image.rect.x = self.map_x*-1
         for variable_name, variable_value in self.trap_all.items():
-            variable_value.rect.x = variable_value.trap_x - self.map_x
             variable_value.DO()
         if self.map == 0 :
             self.map_image.change_image(map_0_image_path)
-        if self.map == 1 :
-            self.map_image.change_image(map_1_image_path)
-        if self.map == 2 :
-            self.map_image.change_image(map_2_image_path)
-        # npc_trap.rect.x = 100
-        # npc_trap.rect.y = 100 
+
         # 難度變更
     def change_difficulty (self, difficulty_mod) :
         if difficulty_mod == 0 :
@@ -453,7 +447,9 @@ class Trap(pygame.sprite.Sprite) :
         self.trigger_box_y = trigger_box_y
         self.trigger_size_x = trigger_size_x
         self.trigger_size_y = trigger_size_y
+
     def DO (self) :
+        self.rect.x = self.trap_x - player_1.map_x
         self.trigger_box_collision()
         self.move()
         self.physics_simulation_model()
@@ -507,25 +503,20 @@ class NPC_Trap(pygame.sprite.Sprite) :
         self.trap_sizey = trap_sizey
     def DO (self) :
         self.move()
+        self.rect.y = self.trap_y 
+        self.rect.x = self.trap_x - player_1.map_x
+        pygame.draw.rect(screen, red, (self.trap_x , self.trap_y, self.trap_sizex, self.trap_sizey), 2)
 
     def move (self) :
-        self.rect.y = self.trap_y 
         if self.trap_x < (self.range_left - map_x ) :
             self.trap_velocity_x = self.velocity_trap
         if self.trap_x > (self.range_right - map_x ) :
             self.trap_velocity_x = self.velocity_trap* -1
         self.trap_velocity_y += gravitational_acceleration   
         
-        # x 方向碰撞 + 移動
-        n = int(abs(round(self.trap_velocity_x, 2))*100)  
-        for time_v in range(0,n):
-            game_loopset.loopstage = 4  # 迴圈第4階段
-            self.collision_x = 0
-            self.collision_model()
-            self.move_model()
-
+        self.trap_x += self.trap_velocity_x
         # y 方向碰撞 + 移動
-        n = int(abs(round(self.trap_velocity_y, 2))*100)  
+        n = int(abs(round(self.trap_velocity_y, 2))*10)  
         for time_v in range(0,n):
             game_loopset.loopstage = 5  # 迴圈第5階段
             self.collision_y = 0
@@ -534,36 +525,21 @@ class NPC_Trap(pygame.sprite.Sprite) :
 
     def collision_model (self) :
         # 地圖設置
-        self.object_map = player_1.object_map
-        self.map_x = player_1.map_x
+        object_map = player_1.object_map
+        map_x = player_1.map_x
 
         create_time_map = len(self.object_map)
-        if game_loopset.loopstage == 4 :
-            trap_x_here = self.trap_x + math.copysign(0.01, self.trap_velocity_x)
-            trap_collision_box = pygame.Rect(trap_x_here, self.trap_y, self.trap_sizex, self.trap_sizey)
-            for time_c in range(0, create_time_map,1) :
-                if self.collision_x == 0 :
-                    time_c_int = round(time_c, 0)
-                    object_collision_box = pygame.Rect(self.object_map[time_c_int][0] - self.map_x, (height - self.object_map[time_c_int][1]), self.object_map[time_c_int][2], self.object_map[time_c_int][3])
-                    if  trap_collision_box.colliderect(object_collision_box) : # 碰撞(偵測x) >> 左右不影響
-                        self.collision_x = 1
-            
+        # trap_collision_box = pygame.Rect(self.trap_x - map_x)
         if game_loopset.loopstage == 5 :
-            trap_y_here = self.trap_y + math.copysign(0.01, self.trap_velocity_y)
-            trap_collision_box = pygame.Rect(self.trap_x, trap_y_here, self.trap_sizex, self.trap_sizey)
             for time_c in range(0, create_time_map,1) :   
-                if collision_y == 0 :
+                if self.collision_y == 0 :
                     time_c_int = round(time_c, 0)
-                    object_collision_box = pygame.Rect(self.object_map[time_c_int][0] - self.map_x, (height - self.object_map[time_c_int][1]), self.object_map[time_c_int][2], self.object_map[time_c_int][3])
-                    if trap_collision_box.colliderect(object_collision_box) : # 碰撞11(偵測y)
+                    if self.trap_y + math.copysign(0.1, self.trap_velocity_y) > (height - object_map[time_c_int][1] - self.trap_sizey) and (self.trap_y + self.trap_sizey) < (height - object_map[time_c_int][1]) and (self.trap_x) > (object_map[time_c_int][0] - map_x - self.trap_sizex) and (self.trap_x ) < (object_map[time_c_int][0] - map_x + object_map[time_c_int][2]): # 碰撞(偵測y) >> 上(物體的)
                         self.collision_y = 1
+    
     def move_model(self):
-        if self.collision_x == 0 and game_loopset.loopstage == 4:
-            self.trap_x = self.trap_x + math.copysign(0.01, self.trap_velocity_x)
-        elif self.collision_x == -1 or self.collision_x == 1 :
-            self.trap_velocity_x = 0 
         if self.collision_y == 0 and game_loopset.loopstage == 5:
-            self.trap_y = self.trap_y + math.copysign(0.01, self.trap_velocity_y)
+            self.trap_y = self.trap_y + math.copysign(0.1, self.trap_velocity_y)
         elif self.collision_y == 1 :
             self.trap_velocity_y = 0
 
@@ -687,17 +663,17 @@ key_1 = physics(0, 0, 0, 0, 0, 0, 0)
     # map_1
 map_1_object = [
         [0,  20, 300000, 20 ],
-        # [400, 90, 300, 30 ],
-        # [1000,  110, 30, 30 ],
-        # [1200,  165, 30, 450 ]
+        [400, 150, 300, 150 ],
+        [1000,  110, 30, 30 ],
+        [1200,  15, 300, 450 ]
        
     ]
     # (x, y, trigger_box_x, trigger_box_y, trigger_size_x, trigger_size_y, vector_x, vector_y, velocity_trap, trap_image, physics_simulation)
     # 觸發 [1, 起始位置_X, 起始位置_Y, 觸發箱_X, 觸發箱_y, 觸發箱寬, 觸發箱高,向量_X, 向量_Y, 移動速度, 陷阱圖片, 物理效果, 觸發前隱形]
-    # NPC  [2, 起始位置_X, 起始位置_Y, 左極限, 右極限, 速度]
+    # NPC  [2, 起始位置_X, 起始位置_Y, 左極限, 右極限, 速度, NPC寬, NPC高]
 map_1_trap = [
-        [1, 100, 600, 100, 100, 100, 50, 1, 1, 1, player_image_left, 0, 1],
-        [2, 100, 300, 0, 1000, 10, player_image_left, 30, 45]
+        [1, 100, 600, 100, 100, 100, 50, 0, 1, 10, player_image_left, 0, 1],
+        [2, 500, 300, 0, 1000, 4, player_image_left, 30, 45]
     ]
 
     # map_2
@@ -726,9 +702,6 @@ all_sprites_pause.add(pause_image)
 death_image = Death_image (width // 2 - 100, height // 2)
 all_sprites_death.add(death_image)
 
-# test (x, y, range_x, velocity_trap, trap_image, invisible)
-# npc_trap = NPC_Trap(100, 300, 0, 1000, 10, player_image_left, 0)
-# all_sprites_npc_trap.add(npc_trap)
 # 遊戲clock
 clock = pygame.time.Clock()
 
@@ -772,12 +745,14 @@ while True:
     game_loopset.loopstage = 6  # 迴圈第6階段      
     if gamestage == 10 :
         all_sprites_trap.empty()
-        player_1.change_map(map_1_object, map_1_trap, 1, 410, 1, 0, 1000) # (地圖物件, 地圖陷阱, 腳色出現位置_x, 腳色出現位置_y, 第幾關, 難度)
+        player_1.change_map(map_1_object, map_1_trap, 1, 410, 1, 0, 10000) # (地圖物件, 地圖陷阱, 腳色出現位置_x, 腳色出現位置_y, 第幾關, 難度)
+        player_1.map_image.change_image(map_1_image_path)
         player_1.trap_create_model()
         gamestage = 1
     if gamestage == 20 :
         all_sprites_trap.empty()
-        player_1.change_map(map_2_object, map_2_trap, 1, 410, 2, 2, 1000)
+        player_1.change_map(map_2_object, map_2_trap, 1, 410, 2, 2, 10000)
+        player_1.map_image.change_image(map_2_image_path)
         player_1.trap_create_model()
         gamestage = 2
     
@@ -798,8 +773,6 @@ while True:
     # 宣告 NAME = NAME.render(f"文本{變數}", 平滑值, 文字顏色, 背景顏色)       # render << 設定文本     # f 是用來表示一個格式化字串（formatted string）的開頭
     test = Test.render(f" player_1.player_x: {player_1.player_x + player_1.map_x}  player_1.player_y: {player_1.player_y} collision_button_list: {collision_button_list} press the 'Number' key  0 >> Home screen  1 >> level1    2 >> level2    space >> pause " , True, (0,0,0))    # 顯示參數(方便測試Debug用)
     
-    # 顯示測試參數
-    screen.blit(test,(10,10))
 
     # 顯示版本
     screen.blit(version, (width-80, height - font_size_v))
@@ -812,7 +785,7 @@ while True:
     sprites_updata_model()
 
     # 繪製地圖
-    all_sprites_map.draw(screen)
+    #all_sprites_map.draw(screen)
     all_sprites_button.draw(screen)
 
     if gamestage > 0 :
@@ -826,6 +799,8 @@ while True:
     # 繪製暫停畫面
     if pause == 1 :
         all_sprites_pause.draw(screen)
+    # 顯示測試參數
+    screen.blit(test,(10,10))
     # 更新畫面
     pygame.display.flip()
     
