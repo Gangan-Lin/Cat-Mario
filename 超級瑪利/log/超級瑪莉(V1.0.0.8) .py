@@ -84,6 +84,8 @@ player_image_left = '.\超級瑪利\image\player\cat_left.png'
 player_image_mid = '.\超級瑪利\image\player\cat_mid.png'
     # nothing image path
 nothing_image_path =  '.\超級瑪利\image\O\O.png'
+    # Trap image path 
+trap_image_bush = '.\超級瑪利\image\player\cat_mid.png'
 
 button_push = 0 
 
@@ -455,12 +457,17 @@ class Trap(pygame.sprite.Sprite) :
         self.physics_simulation_model()
     def trigger_box_collision (self) :
         if self.invisible == 1 and self.triggered == 0 :
-            self.change_image(nothing_image_path)     
+            self.change_image(nothing_image_path)
+            self.rect.x = -100
+            self.rect.y = -100     
         map_x = player_1.map_x
         trigger_sprite = pygame.sprite.Sprite()
         trigger_sprite.rect = pygame.Rect((self.trigger_box_x - map_x), (height - self.trigger_box_y), self.trigger_size_x, self.trigger_box_y)
-        if trigger_sprite.rect.colliderect(player_1.player.rect):
+        if trigger_sprite.rect.colliderect(player_1.player.rect) and self.triggered == 0 :
             self.triggered = 1
+            if self.invisible == 1 :
+                self.rect.x = self.trap_x
+                self.rect.y = self.trap_y
             self.change_image(self.image_path)
     def move(self) :
         if self.triggered == 1 and self.physics_simulation == 0 :
@@ -664,7 +671,9 @@ def game_test() :
     if keys[pygame.K_6] :
         player_1.death_time += 1
         death_image.death(player_1.death_time)
-    
+    if keys[pygame.K_7] :
+        player_1.map_x += 10
+        player_1.player_y = 100
         
 # 建立 (位置以畫面左下角為(0, 0))
     # 按鈕 ["name", x, y, level, path]
@@ -682,18 +691,29 @@ key_1 = physics(0, 0, 0, 0, 0, 0, 0)
 # 地圖檔
     # map_1
 map_1_object = [
-        [0,  20, 300000, 20 ],
-        [400, 150, 1000, 150 ],
-        [1500,  110, 30, 30 ],
-        [1700,  150, 300, 450 ]
-       
+        [0,  35, 300000, 90 ],
+        [425, 150, 37, 40 ],
+        [528, 222, 190, 35 ],
+        [667, 325, 75, 34 ],#先隱藏後出現
+        [630, 430, 150, 34 ],
+        [920, 152, 65, 120 ],#水管
+        [902, 191, 99, 41 ],#水管
+        [1134, 63, 30, 33 ],
+        [1209,  100, 36, 70 ],
+        [1290,  144, 40, 100 ]    
     ]
+
     # (x, y, trigger_box_x, trigger_box_y, trigger_size_x, trigger_size_y, vector_x, vector_y, velocity_trap, trap_image, physics_simulation)
     # 觸發 [1, 起始位置_X, 起始位置_Y, 觸發箱_X, 觸發箱_y, 觸發箱寬, 觸發箱高,向量_X, 向量_Y, 移動速度, 陷阱圖片, 物理效果, 觸發前隱形]
     # NPC  [2, 起始位置_X, 起始位置_Y, 左極限, 右極限, 速度, NPC寬, NPC高]
 map_1_trap = [
         [1, 100, 600, 100, 100, 100, 50, 0, 1, 10, player_image_left, 0, 1],
-        [2, 500, 300, 0, 10000, 4, player_image_left, 30, 45]
+        [2, 500, 300, 0, 1000, 4, player_image_left, 30, 45],
+        [1, 780, 85, 780, 60, 90, 30, 0, 0, 0, trap_image_bush, 0, 0],#草叢
+    ]
+map_1_trigger_object = [
+    [],
+    
     ]
 
     # map_2
