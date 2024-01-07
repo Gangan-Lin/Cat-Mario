@@ -1,2 +1,0 @@
-if self.trap_y + math.copysign(0.01, self.trap_velocity_y) > (height - object[time_c_int][1] - self.trap_sizey) and (self.trap_y + self.trap_sizey) < (height - object[time_c_int][1]) and (self.trap_x) > (object[time_c_int][0] - map_x - self.trap_sizex) and (self.trap_x ) < (object[time_c_int][0] - map_x + object[time_c_int][2]): # 碰撞(偵測y) >> 上(物體的)
-     self.collision_y = 1
