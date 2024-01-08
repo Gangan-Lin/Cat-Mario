@@ -1,3 +1,5 @@
+# 更新報
+    # 修了一點小BUG
 # 看這裡
 test_mode = 1   # 測試模式(1開，0關) 藍框 >> 地圖物件&腳色的碰撞方塊, 紅框 >> 觸發物件的碰撞方塊&(NPC)的碰撞方塊, 綠框 >> 隱藏物件的碰撞方塊
     # 要填的地圖物件在766行，上面都有註解怎麼填，先看完試試看，不懂再問
@@ -95,7 +97,8 @@ nothing_image_path =  '.\超級瑪利\image\O\O.png'
     # Trap image path 
 trap_image_bush = '.\超級瑪利\image\player\cat_mid.png'
 trap_image_uglygay = '.\超級瑪利\image\player\cat_mid.png'
-
+    # How To PLAY path
+play_image = '.\超級瑪利\image\map_0\Teach.png'
 button_push = 0 
 
 class physics :
@@ -292,7 +295,7 @@ class physics :
                     if trigger_collision_box.colliderect(player_collision_box) :
                         self.player_object_map[time_c_int][4] = 1
                         object_name = f"trap_{time_c_int}"
-                        self.object_trigger[object_name] = Map(self.player_object_map[time_c_int][9], self.player_object_map[time_c_int][5] - self.map_x,self.player_object_map[time_c_int][6])
+                        self.object_trigger[object_name] = Map(self.player_object_map[time_c_int][9], self.player_object_map[time_c_int][0], self.player_object_map[time_c_int][1])
                         all_sprites_map.add(self.object_trigger[object_name])
         if game_loopset.loopstage == 5 :
             player_y_here = self.player_y + math.copysign(0.1, self.velocity_y)
@@ -768,8 +771,8 @@ def game_test() :
     # 按鈕 ["name", x, y, level, path, 效果]
 Button = [
     ["PAUSE", 0, 30, 2, pause_image_path, 1],#nothing_image_path
-    ["start", width//2-250, height//2-50, 3, start_image_path, 2]    
-        
+    ["start", width//2-250, height//2-50, 3, start_image_path, 2],    
+    ["How To PLAY", 0, height - 350 , 3, play_image, 3]    
         
         ]
 # 建立按鈕
