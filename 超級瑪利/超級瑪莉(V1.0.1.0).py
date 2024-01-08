@@ -524,7 +524,7 @@ class Trap(pygame.sprite.Sprite) :
             self.rect.y = -100     
         map_x = player_1.map_x
         trigger_sprite = pygame.sprite.Sprite()
-        trigger_sprite.rect = pygame.Rect((self.trigger_box_x - map_x), (height - self.trigger_box_y), self.trigger_size_x, self.trigger_box_y)
+        trigger_sprite.rect = pygame.Rect((self.trigger_box_x - map_x), (height - self.trigger_box_y), self.trigger_size_x, self.trigger_size_y)
         if trigger_sprite.rect.colliderect(player_1.player.rect) and self.triggered == 0 :
             self.triggered = 1
             if self.invisible == 1 :
@@ -804,7 +804,7 @@ map_1_object = [
     # 觸發 [1, 起始位置_X, 起始位置_Y, 觸發箱_X, 觸發箱_y, 觸發箱寬, 觸發箱高,向量_X, 向量_Y, 移動速度, 陷阱圖片, 物理效果, 觸發前隱形]
     # NPC  [2, 起始位置_X, 起始位置_Y, 左極限, 右極限, 速度, 陷阱圖片, NPC寬, NPC高]
 map_1_trap = [
-        [1, 100, 600, 100, 100, 100, 50, 0, 1, 10, player_image_left, 0, 1],
+        [1, 100, 600, 100, 600, 100, 50, 0, 1, 10, player_image_left, 0, 1],
         [2, 500, 300, 0, 1000, 4, trap_image_uglygay, 30, 45],
         [1, 925, 110, 930, 720, 90, 720, 0, -1, 10, trap_image_uglygay, 0, 1],
         [1, 780, 85, 780, 60, 90, 30, 0, 0, 0, trap_image_bush, 0, 1],#草叢
