@@ -299,15 +299,16 @@ class physics :
             player_x_here = self.player_x + math.copysign(0.1, self.velocity_x)
             player_collision_box = pygame.Rect(player_x_here, player_y_here, self.player_sizex, self.player_sizey)
             for time_c in range(0, create_time, 1) :
-                time_c_int = round(time_c, 0)
+                time_c_int = round(time_c, 0) 
                 if self.player_object_map[time_c_int][4] == 0 and self.velocity_y < 0 :
-                    object_name = f"trap_{time_c_int}"
-                    trigger_collision_box = pygame.Rect((self.player_object_map[time_c_int][5] - self.map_x, (height - self.player_object_map[time_c_int][6]), self.player_object_map[time_c_int][7], self.player_object_map[time_c_int][8]))
-                    object_collision_box = pygame.Rect(self.player_object_map[time_c_int][0] - self.map_x, (height - self.player_object_map[time_c_int][1]), self.player_object_map[time_c_int][2], self.player_object_map[time_c_int][3])
-                    if trigger_collision_box.colliderect(player_collision_box) and object_collision_box.colliderect(player_collision_box) == False:
-                        self.player_object_map[time_c_int][4] = 1
-                        self.object_trigger[object_name] = Map(self.player_object_map[time_c_int][9], self.player_object_map[time_c_int][0], self.player_object_map[time_c_int][1])
-                        all_sprites_map.add(self.object_trigger[object_name])
+                    if player_1.player_x > self.player_object_map[time_c_int][5] - self.map_x - 100 and player_1.player_x < self.player_object_map[time_c_int][5] + self.player_object_map[time_c_int][7] - self.map_x + 100 :
+                        object_name = f"trap_{time_c_int}"
+                        trigger_collision_box = pygame.Rect((self.player_object_map[time_c_int][5] - self.map_x, (height - self.player_object_map[time_c_int][6]), self.player_object_map[time_c_int][7], self.player_object_map[time_c_int][8]))
+                        object_collision_box = pygame.Rect(self.player_object_map[time_c_int][0] - self.map_x, (height - self.player_object_map[time_c_int][1]), self.player_object_map[time_c_int][2], self.player_object_map[time_c_int][3])
+                        if trigger_collision_box.colliderect(player_collision_box) and object_collision_box.colliderect(player_collision_box) == False:
+                            self.player_object_map[time_c_int][4] = 1
+                            self.object_trigger[object_name] = Map(self.player_object_map[time_c_int][9], self.player_object_map[time_c_int][0], self.player_object_map[time_c_int][1])
+                            all_sprites_map.add(self.object_trigger[object_name])
                         
         # 碰撞方塊繪製模組
     def collisionbox_draw_model (self) :
@@ -518,25 +519,26 @@ class Trap(pygame.sprite.Sprite) :
         self.move()
         self.physics_simulation_model()
     def trigger_box_collision (self) :
+        map_x = player_1.map_x
         if self.invisible == 1 and self.triggered == 0 :
             self.change_image(nothing_image_path)
             self.rect.x = -100
-            self.rect.y = -100     
-        map_x = player_1.map_x
-        trigger_sprite = pygame.sprite.Sprite()
-        trigger_sprite.rect = pygame.Rect((self.trigger_box_x - map_x), (height - self.trigger_box_y), self.trigger_size_x, self.trigger_size_y)
-        if trigger_sprite.rect.colliderect(player_1.player.rect) and self.triggered == 0 :
-            self.triggered = 1
-            if self.invisible == 1 :
-                self.rect.x = self.trap_x
-                self.rect.y = self.trap_y
-            self.change_image(self.image_path)
+            self.rect.y = height + 200
+        if player_1.player_x > self.trigger_box_x - map_x - 100 and player_1.player_x < self.trigger_box_x + self.trigger_size_x - map_x + 100 :     
+            trigger_sprite = pygame.sprite.Sprite()
+            trigger_sprite.rect = pygame.Rect((self.trigger_box_x - map_x), (height - self.trigger_box_y), self.trigger_size_x, self.trigger_size_y)
+            if trigger_sprite.rect.colliderect(player_1.player.rect) and self.triggered == 0 :
+                self.triggered = 1
+                if self.invisible == 1 :
+                    self.rect.x = self.trap_x
+                    self.rect.y = self.trap_y
+                self.change_image(self.image_path)
     def move(self) :
         if self.triggered == 1 and self.physics_simulation == 0 :
             self.trap_x += self.vector_x * self.velocity_trap
             self.rect.y += self.vector_y * self.velocity_trap
     def physics_simulation_model(self) :
-        if self.rect.y < (height + 200) :
+        if self.rect.y < (height + 400) :
             if self.triggered  == 1 and self.physics_simulation == 1 :
                 self.trap_velocity_y += gravitational_acceleration
                 self.rect.y += self.trap_velocity_y
@@ -770,7 +772,7 @@ def game_test() :
         player_1.key_7 = 0
         player_1.player_y = 100
     if keys[pygame.K_8] :
-        player_1.player_object_map[4][4] = 0
+        player_1.player_y = -100
         
 # 建立 (位置以畫面左下角為(0, 0))
     # 按鈕 ["name", x, y, level, path, 效果]
