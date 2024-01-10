@@ -2,6 +2,9 @@
     # 修了一點小BUG
 # 看這裡
 test_mode = 1   # 測試模式(1開，0關) 藍框 >> 地圖物件&腳色的碰撞方塊, 紅框 >> 觸發物件的碰撞方塊&(NPC)的碰撞方塊, 綠框 >> 隱藏物件的碰撞方塊
+dead_mode = 1   # 死亡 (為1 時不會死亡)
+if test_mode == 0 :
+    dead_mode = 0 
     # 要填的地圖物件在766行，上面都有註解怎麼填，先看完試試看，不懂再問
     # 還有要去設定那張地圖的難度 腳色出現位置等等
     # 圖片路徑要新增在98行開始，不要去更改舊有的路徑(除了地圖的，地圖的直接拿舊有的路徑下去更改)，要新增圖片路徑的話就照前面幾個的格式去做
@@ -83,7 +86,10 @@ double_jump = 1                             # 二段跳開關
     # map image 路徑
 map_0_image_path = '.\超級瑪利\image\map_0\map_0.png'
 map_1_image_path = '.\超級瑪利\image\map_1\map_1.png'
-map_2_image_path = '.\超級瑪利\image\player\cat_right.png'
+map_2_image_path = '.\超級瑪利\image\map_2\map_2.png'
+map_3_image_path = '.\超級瑪利\image\map_2\map_2.png'
+map_end1_image_path = '.\超級瑪利\image\map_end\end1.png'
+map_end2_image_path = '.\超級瑪利\image\map_end\end2.png'
     # pause image 路徑
 pause_image_path = '.\超級瑪利\image\Button\pause\pause.png'
 pause_big_image_path = '.\超級瑪利\image\Button\pause\pause_big.png'
@@ -105,6 +111,15 @@ trap_image_sting_down = '.\超級瑪利\image\Trap\Sting_down.png'
 trap_image_block_01 = '.\超級瑪利\image\Trap\Block_01.png'
 trap_image_block_02 = '.\超級瑪利\image\Trap\Block_02.png'
 trap_image_endstick = '.\超級瑪利\image\Trap\Endstick.png'
+trap_image_blank = '.\超級瑪利\image\Trap\Blank.png'
+trap_image_blank_02 = '.\超級瑪利\image\Trap\Blank_02.png'
+trap_image_block_gray_01 = '.\超級瑪利\image\Trap\Block_gray_01.png'
+trap_image_block_gray_02 = '.\超級瑪利\image\Trap\Block_gray_02.png'
+trap_image_block_fireball = '.\超級瑪利\image\Trap\Fireball.png'
+trap_image_block_octopus = '.\超級瑪利\image\Trap\Octopus.png'
+trap_image_block_bomb = '.\超級瑪利\image\Trap\Bomb.png'
+trap_image_emergency = '.\超級瑪利\image\Trap\Emergency.png'
+trap_image_weirdo = '.\超級瑪利\image\Trap\Weirdo.png'
     # How To PLAY path
 play_image = '.\超級瑪利\image\map_0\Teach.png'
 button_push = 0 
@@ -250,10 +265,10 @@ class physics :
     def move_model(self):
         if game_loopset.loopstage == 4 :
             if self.collision_x == 0 :
-                self.player_x = self.player_x + math.copysign(0.01, self.velocity_x)
-                if self.player_x + self.player_sizex > self.max_x and self.map_x <= (self.end_x - width + 50) :
-                    self.player_x = self.player_x - math.copysign(0.01, self.velocity_x)
-                    self.map_x = self.map_x + math.copysign(0.01, self.velocity_x)   
+                self.player_x = self.player_x + math.copysign(0.1, self.velocity_x)
+                if self.player_x + self.player_sizex > self.max_x and self.map_x <= (self.end_x - width + 50 ) :
+                    self.player_x = self.player_x - math.copysign(0.1, self.velocity_x)
+                    self.map_x = self.map_x + math.copysign(0.1, self.velocity_x)   
             elif self.collision_x == -1 or self.collision_x == 1 :
                 self.velocity_x = 0 
         if game_loopset.loopstage == 5 :
@@ -270,7 +285,7 @@ class physics :
     def collision_model (self) :
         create_time_map = len(self.player_object_map)
         if game_loopset.loopstage == 4 :
-            player_x_here = self.player_x + math.copysign(0.01, self.velocity_x)
+            player_x_here = self.player_x + math.copysign(0.1, self.velocity_x)
             player_collision_box = pygame.Rect(player_x_here, self.player_y, self.player_sizex, self.player_sizey) 
             for time_c in range(0, create_time_map,1) :
                 time_c_int = round(time_c, 0)
@@ -325,14 +340,14 @@ class physics :
         import math
         floor = 0
         if game_loopset.loopstage == 4 :
-            if self.player_x + math.copysign(0.01, self.velocity_x) >= 0 :
+            if self.player_x + math.copysign(0.1, self.velocity_x) >= 0 :
                 self.collision_x = 0
-            elif self.player_x + math.copysign(0.01, self.velocity_x) <= 0:
+            elif self.player_x + math.copysign(0.1, self.velocity_x) <= 0:
                 self.collision_x = -1
         if game_loopset.loopstage == 5 and floor == 1:
-            if self.player_y + math.copysign(0.01, self.velocity_y) <= (height - self.player_sizey) :
+            if self.player_y + math.copysign(0.1, self.velocity_y) <= (height - self.player_sizey) :
                 self.collision_y = 0
-            elif self.player_y + math.copysign(0.01, self.velocity_y) >= (height - self.player_sizey) :
+            elif self.player_y + math.copysign(0.1, self.velocity_y) >= (height - self.player_sizey) :
                 self.collision_y = -1
 
         # 陷阱建立模組
@@ -434,7 +449,7 @@ class physics :
             self.collision_y = 0
             self.collision_x = 0
             game_loopset.loopstage = 4
-            for time_v in range(0,int(abs(round(player_1.velocity_x, 2))*100)) :
+            for time_v in range(0,int(abs(round(player_1.velocity_x, 1))*10)) :
                 player_1.move_model()
             game_loopset.loopstage = 5
             for time_v in range(0,int(abs(round(player_1.velocity_y, 1))*10)) :
@@ -465,6 +480,7 @@ all_sprites_pause = pygame.sprite.Group()
 all_sprites_trap = pygame.sprite.Group()
 all_sprites_death = pygame.sprite.Group()
 all_sprites_button = pygame.sprite.Group()
+all_sprites_end = pygame.sprite.Group()
     # 玩家
 class Player(pygame.sprite.Sprite) :
     def __init__(self, x, y):
@@ -515,7 +531,8 @@ class Trap(pygame.sprite.Sprite) :
 
     def DO (self) :
         self.rect.x = self.trap_x - player_1.map_x
-        self.trigger_box_collision()
+        if player_1.collision_trap1 == 0 :
+            self.trigger_box_collision()
         self.move()
         self.physics_simulation_model()
     def trigger_box_collision (self) :
@@ -737,6 +754,7 @@ def sprites_updata_model() :
     all_sprites_trap.update()
     all_sprites_button.update()
     all_sprites_death.update()
+    all_sprites_end.update()
     # 測試
 def game_test() :
     keys = pygame.key.get_pressed()
@@ -773,6 +791,8 @@ def game_test() :
         player_1.player_y = 100
     if keys[pygame.K_8] :
         player_1.player_y = -100
+    if keys[pygame.K_9] :
+        gamestage = 40
         
 # 建立 (位置以畫面左下角為(0, 0))
     # 按鈕 ["name", x, y, level, path, 效果]
@@ -831,8 +851,8 @@ map_1_object = [
         [2978,  575, 42, 349,1 ],
         [2939,  324, 41, 36,1 ],
         [3162,  575, 42, 349,1 ],
-        [3012,  670, 72, 30,0 , 3012, 660, 72, 20, trap_image_block_01],#觸發後出現
-        [3360,  1000, 42, 300,1 ],#隱形方塊
+        [3012,  670, 72, 38, 0, 3012, 660, 72, 35, trap_image_block_01],#觸發後出現
+        [3360,  1000, 57, 877, 1 ],#隱形方塊
         [3897,  76, 43, 300,1 ],
         [3936,  120, 43, 300,1 ],
         [3975,  157, 43, 300,1 ],
@@ -866,11 +886,73 @@ map_1_trap = [
     ]
 
     # map_2
+map_2_startingpoint_x = 1   # 出現位置X
+map_2_startingpoint_y = 410 # 出現位置Y
+map_2_difficulty = 1        # 難度(0是有二段/1是沒有二段/2是空中不能換向)
+map_2_endpoint_x = 4785     # 終點X
 map_2_object = [
+        [0,  35, 5000, 90,1 ],#地板
+        [1600,  35, 639, 90,1 ],#地板
+        [3357,  35, 2000, 90,1 ],#地板
+        [314, 138, 60, 105,1 ],
+        [314, 400, 60, 163,1 ],
+        [458, 183, 60, 149,1 ],
+        [458, 490, 60, 208,1 ],
+        [604, 263, 54, 230,1 ],
+        [604, 550, 54, 188,1 ],
+        [755, 261, 90, 40, 1 ],
+        [956, 300, 72, 44, 1 ],
+        [1107, 330, 74, 35, 1 ],
+        [1140, 440, 153, 27, 0, 1140, 420, 100, 30, trap_image_block_gray_02 ],
+        [1310, 188, 83, 40, 1 ],
+        [1512, 220, 430, 400, 1 ],
+        [1776, 281, 60, 30, 1 ],
+        [1886, 376, 66, 40, 1 ],
+        [1762, 459, 72, 35, 1 ],
+        [1907, 553, 46, 33, 1 ],
+        [2147, 590, 130, 38, 1 ],
+        [2406, 592, 274, 38, 1 ],
+        [3380, 60, 200, 100, 1 ],
+        [3400, 90, 160, 100, 1 ],
+        [3425, 120, 100, 100, 1 ],
+        [3623, 60, 200, 100, 1 ],
+        [3643, 90, 160, 100, 1 ],
+        [3668, 120, 100, 100, 1 ],
+        [3866, 60, 200, 100, 1 ],
+        [3886, 90, 160, 100, 1 ],
+        [3911, 120, 100, 100, 1 ],
+        [4225, 89, 107, 50, 1 ],
+        [4377, 160, 107, 50, 1 ],
+    ]
+map_2_trap = [
+        [1, 374, 53, 374, 90, 89, 53, 0, 0, 0, trap_image_blank, 0, 1],#火
+        [1, 518, 53, 518, 90, 89, 53, 0, 0, 0, trap_image_blank, 0, 1],#火
+        [1, 653, 53, 653, 90, 855, 53, 0, 0, 0, trap_image_blank_02, 0, 1],#長火
+        [1, 755, 50, 700, 720, 1, 720, 0, -1, 10, trap_image_block_fireball, 0, 1],#火球
+        [1, 970, 50, 900, 720, 1, 720, 0, -1, 10, trap_image_block_fireball, 0, 1],#火球
+        [1, 755, 50, 900, 720, 1, 720, 0, -1, 10, trap_image_block_fireball, 0, 1],#火球
+        [1, 1950, 560, 1950, 560, 734, 518, 0, 0, 0, trap_image_emergency, 0, 0],#警戒
+        [1, 2804, 720, 2804, 720, 511, 616, 0, 0, 0, trap_image_weirdo, 0, 0],#怪咖
+        [1, 755, 50, 900, 720, 1, 720, 0, -1, 10, trap_image_block_fireball, 0, 1],#火球
+        [1, 755, 50, 900, 720, 1, 720, 0, -1, 10, trap_image_block_fireball, 0, 1],#火球
+        [1, 3410, 50, 3455, 720, 1, 720, 0, -1, 10, trap_image_block_fireball, 0, 1],#火球
+        [1, 3455, 720, 3455, 720, 1, 720, 0, 1, 7, trap_image_block_fireball, 0, 1],#火球
+        [1, 3735, 50, 3725, 720, 1, 720, 0, -1, 7, trap_image_block_fireball, 0, 1],#火球
+        [1, 3680, 720, 3725, 720, 1, 720, 0, 1, 10, trap_image_block_fireball, 0, 1],#火球
+        [1, 3925, 50, 3952, 720, 1, 720, 0, -1, 10, trap_image_block_fireball, 0, 1],#火球
+        [1, 4000, 720, 3952, 720, 1, 720, 0, 1, 7, trap_image_block_fireball, 0, 1],#火球
+    ]
+
+    # map_2
+map_3_startingpoint_x = 1   # 出現位置X
+map_3_startingpoint_y = 410 # 出現位置Y
+map_3_difficulty = 1        # 難度(0是有二段/1是沒有二段/2是空中不能換向)
+map_3_endpoint_x = 4785     # 終點X
+map_3_object = [
         [0,  60, 300000, 20 ,1]
        
     ]
-map_2_trap = [
+map_3_trap = [
         
     ]
 
@@ -915,7 +997,7 @@ while True:
         player_1.resistance_model()
     
     # x 方向碰撞 + 移動
-        n = int(abs(round(player_1.velocity_x, 2))*100)  
+        n = int(abs(round(player_1.velocity_x, 1))*10)  
         for time_v in range(0,n):
             game_loopset.loopstage = 4  # 迴圈第4階段
             player_1.map_collision()
@@ -942,12 +1024,39 @@ while True:
     if gamestage == 20 :
         all_sprites_trap.empty()
         all_sprites_map.empty()
-        player_1.change_map(copy.deepcopy(map_2_object), map_2_trap, 1, 410, 2, 2, 10000)
+        all_sprites_map.add(player_1.map_image)
+        player_1.change_map(copy.deepcopy(map_2_object), map_2_trap, map_2_startingpoint_x, map_2_startingpoint_y, 1, map_2_difficulty, map_2_endpoint_x) # (地圖物件, 地圖陷阱, 腳色出現位置_x, 腳色出現位置_y, 第幾關, 難度, 終點)
         player_1.map_image.change_image(map_2_image_path)
         player_1.trap_create_model()
-        button_level = 2
         gamestage = 2
-    
+        button_level = 2
+    if gamestage == 30 :
+        all_sprites_trap.empty()
+        all_sprites_map.empty()
+        all_sprites_map.add(player_1.map_image)
+        player_1.change_map(copy.deepcopy(map_3_object), map_3_trap, map_3_startingpoint_x, map_3_startingpoint_y, 1, map_3_difficulty, map_3_endpoint_x) # (地圖物件, 地圖陷阱, 腳色出現位置_x, 腳色出現位置_y, 第幾關, 難度, 終點)
+        player_1.map_image.change_image(map_3_image_path)
+        player_1.trap_create_model()
+        gamestage = 3
+        button_level = 2
+    if gamestage == 40 :
+        end_image = Map(map_end1_image_path, 0, 720)
+        all_sprites_end.add(end_image)
+        screen.fill(white)
+        all_sprites_end.draw(screen)
+        pygame.display.flip()
+        time.sleep(1)
+        screen.fill(white)
+        end_image.change_image(map_end2_image_path)
+        all_sprites_end.draw(screen)
+        pygame.display.flip()
+        time.sleep(1)
+        all_sprites_end.empty()
+        gamestage = 10
+    # 不死
+    if dead_mode == 1 :
+        player_1.collision_trap1 = 0
+        
     # 死亡判定
     if player_1.collision_trap1 == 1 or player_1.player_y > (height + 200):
         player_1.death_time += 1
