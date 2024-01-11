@@ -1,7 +1,7 @@
 # 更新報
     # 修了一點小BUG
 # 看這裡
-test_mode = 1   # 測試模式(1開，0關) 藍框 >> 地圖物件&腳色的碰撞方塊, 紅框 >> 觸發物件的碰撞方塊&(NPC)的碰撞方塊, 綠框 >> 隱藏物件的碰撞方塊
+test_mode = 0   # 測試模式(1開，0關) 藍框 >> 地圖物件&腳色的碰撞方塊, 紅框 >> 觸發物件的碰撞方塊&(NPC)的碰撞方塊, 綠框 >> 隱藏物件的碰撞方塊
 dead_mode = 1   # 死亡 (為1 時不會死亡)
 if test_mode == 0 :
     dead_mode = 0 
@@ -32,6 +32,11 @@ green = (0, 255, 0)
 # 設定視窗大小
 screen = pygame.display.set_mode((width,height))        # set_mode << 設定視窗大小
 pygame.display.set_caption('超級瑪莉')      # set_caption('視窗名稱') << 設定視窗名稱
+# icon
+icon = pygame.image.load('.\超級瑪利\image\player\cat_right.png')   
+icon_surface = pygame.Surface((32, 32), pygame.SRCALPHA)
+icon_surface.blit(icon, (0, 0))
+pygame.display.set_icon(icon_surface)
 # 填滿視窗(顏色(R, G, B))
 screen.fill(white)      #fill << 填滿
     # 設定各項數值
@@ -51,7 +56,7 @@ clock_hz = 60                                           # 就是clock(問題太�
 loopstage = 0                              
 gamestage = 0                              # 遊戲階段(關卡 暫停(-1) 主畫面 死亡)
 pause = 0
-button_level = 5
+button_level = 3
 button_level_now = button_level
     # 地圖x(以最左為0)
 map_x = 0                                   
@@ -92,7 +97,7 @@ map_end1_image_path = '.\超級瑪利\image\map_end\end1.png'
 map_end2_image_path = '.\超級瑪利\image\map_end\end2.png'
     # pause image 路徑
 pause_image_path = '.\超級瑪利\image\Button\pause\pause.png'
-pause_big_image_path = '.\超級瑪利\image\Button\pause\pause_big.png'
+continue_big_image_path = '.\超級瑪利\image\Button\pause\continue_big.png'
 start_image_path = '.\超級瑪利\image\Button\start\start.png'
     # player image 路徑
 player_image_right = '.\超級瑪利\image\player\cat_right.png'
@@ -180,17 +185,17 @@ class physics :
         self.end_x = 10000
     def keypress_model(self) :
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT] :
+        if keys[pygame.K_LEFT] or keys[pygame.K_a] :
             self.key_left = 1
             player_1.player.change_image(player_image_left)
         else :
             self.key_left = 0
-        if keys[pygame.K_RIGHT] :
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             self.key_right = 1
             player_1.player.change_image(player_image_right)
         else :
             self.key_right = 0
-        if keys[pygame.K_UP] :
+        if keys[pygame.K_UP] or keys[pygame.K_w]:
             self.key_up = 1
         else :
             self.key_up = 0
@@ -290,22 +295,24 @@ class physics :
             for time_c in range(0, create_time_map,1) :
                 time_c_int = round(time_c, 0)
                 if self.player_object_map[time_c_int][4] == 1 :
-                    if self.collision_x == 0 :
-                        object_collision_box = pygame.Rect(self.player_object_map[time_c_int][0] - self.map_x, (height - self.player_object_map[time_c_int][1]), self.player_object_map[time_c_int][2], self.player_object_map[time_c_int][3])
-                        if  player_collision_box.colliderect(object_collision_box) : # 碰撞(偵測x) >> 左右不影響
-                            self.collision_x = 1
+                    if self.player_x + self.player_sizex > self.player_object_map[time_c_int][0] - self.map_x - 10 and self.player_x < self.player_object_map[time_c_int][0] + self.player_object_map[time_c_int][2] - self.map_x + 10 :
+                        if self.collision_x == 0 :
+                            object_collision_box = pygame.Rect(self.player_object_map[time_c_int][0] - self.map_x, (height - self.player_object_map[time_c_int][1]), self.player_object_map[time_c_int][2], self.player_object_map[time_c_int][3])
+                            if  player_collision_box.colliderect(object_collision_box) : # 碰撞(偵測x) >> 左右不影響
+                                self.collision_x = 1
         if game_loopset.loopstage == 5 :
             player_y_here = self.player_y + math.copysign(0.1, self.velocity_y)
             player_collision_box = pygame.Rect(self.player_x, player_y_here, self.player_sizex, self.player_sizey)
             for time_c in range(0, create_time_map,1) : 
                 time_c_int = round(time_c, 0)
                 if self.player_object_map[time_c_int][4] == 1 :
-                    if collision_y == 0 :
-                        object_collision_box = pygame.Rect(self.player_object_map[time_c_int][0] - self.map_x, (height - self.player_object_map[time_c_int][1]), self.player_object_map[time_c_int][2], self.player_object_map[time_c_int][3])
-                        if player_collision_box.colliderect(object_collision_box) and (player_y_here) < (height - self.player_object_map[time_c_int][1]) : # 碰撞(偵測y) >> 上(物體的)
-                            self.collision_y = -1
-                        elif player_collision_box.colliderect(object_collision_box) : # 碰撞(偵測y) >> 下(物體的)
-                                self.collision_y = 1
+                    if self.player_x + self.player_sizex > self.player_object_map[time_c_int][0] - self.map_x - 10 and self.player_x < self.player_object_map[time_c_int][0] + self.player_object_map[time_c_int][2] - self.map_x + 10 :
+                        if collision_y == 0 :
+                            object_collision_box = pygame.Rect(self.player_object_map[time_c_int][0] - self.map_x, (height - self.player_object_map[time_c_int][1]), self.player_object_map[time_c_int][2], self.player_object_map[time_c_int][3])
+                            if player_collision_box.colliderect(object_collision_box) and (player_y_here) < (height - self.player_object_map[time_c_int][1]) : # 碰撞(偵測y) >> 上(物體的)
+                                self.collision_y = -1
+                            elif player_collision_box.colliderect(object_collision_box) : # 碰撞(偵測y) >> 下(物體的)
+                                    self.collision_y = 1
         # 地圖觸發判斷
     def map_trigger_box_collision (self) :  
         create_time = len(self.player_object_map)
@@ -316,7 +323,7 @@ class physics :
             for time_c in range(0, create_time, 1) :
                 time_c_int = round(time_c, 0) 
                 if self.player_object_map[time_c_int][4] == 0 and self.velocity_y < 0 :
-                    if player_1.player_x > self.player_object_map[time_c_int][5] - self.map_x - 100 and player_1.player_x < self.player_object_map[time_c_int][5] + self.player_object_map[time_c_int][7] - self.map_x + 100 :
+                    if self.player_x + self.player_sizex > self.player_object_map[time_c_int][5] - self.map_x - 10 and self.player_x < self.player_object_map[time_c_int][5] + self.player_object_map[time_c_int][7] - self.map_x + 10 :
                         object_name = f"trap_{time_c_int}"
                         trigger_collision_box = pygame.Rect((self.player_object_map[time_c_int][5] - self.map_x, (height - self.player_object_map[time_c_int][6]), self.player_object_map[time_c_int][7], self.player_object_map[time_c_int][8]))
                         object_collision_box = pygame.Rect(self.player_object_map[time_c_int][0] - self.map_x, (height - self.player_object_map[time_c_int][1]), self.player_object_map[time_c_int][2], self.player_object_map[time_c_int][3])
@@ -476,7 +483,6 @@ class physics :
 # 精靈群組
 all_sprites_player = pygame.sprite.Group()
 all_sprites_map = pygame.sprite.Group()
-all_sprites_pause = pygame.sprite.Group()
 all_sprites_trap = pygame.sprite.Group()
 all_sprites_death = pygame.sprite.Group()
 all_sprites_button = pygame.sprite.Group()
@@ -541,7 +547,7 @@ class Trap(pygame.sprite.Sprite) :
             self.change_image(nothing_image_path)
             self.rect.x = -100
             self.rect.y = height + 200
-        if player_1.player_x > self.trigger_box_x - map_x - 100 and player_1.player_x < self.trigger_box_x + self.trigger_size_x - map_x + 100 :     
+        if player_1.player_x + player_1.player_sizex > self.trigger_box_x - map_x - 10 and player_1.player_x < self.trigger_box_x + self.trigger_size_x - map_x + 10 :     
             trigger_sprite = pygame.sprite.Sprite()
             trigger_sprite.rect = pygame.Rect((self.trigger_box_x - map_x), (height - self.trigger_box_y), self.trigger_size_x, self.trigger_size_y)
             if trigger_sprite.rect.colliderect(player_1.player.rect) and self.triggered == 0 :
@@ -628,19 +634,21 @@ class NPC_Trap(pygame.sprite.Sprite) :
             for time_c in range(0, create_time_map,1) : 
                 time_c_int = round(time_c, 0)
                 if  self.object_map[time_c_int][4] == 1 :
-                    if self.collision_x == 0 :
-                        object_collision_box = pygame.Rect(self.object_map[time_c_int][0] - map_x, (height - self.object_map[time_c_int][1]), self.object_map[time_c_int][2], self.object_map[time_c_int][3])
-                        if  self.rect.colliderect(object_collision_box) : # 碰撞(偵測x) >> 左右不影響
-                            self.collision_x = 1
+                    if self.rect.x + self.trap_sizex > self.object_map[time_c_int][0] - map_x - 10 and self.rect.x < self.object_map[time_c_int][0] + self.object_map[time_c_int][2] - map_x + 10 :
+                        if self.collision_x == 0 :
+                            object_collision_box = pygame.Rect(self.object_map[time_c_int][0] - map_x, (height - self.object_map[time_c_int][1]), self.object_map[time_c_int][2], self.object_map[time_c_int][3])
+                            if  self.rect.colliderect(object_collision_box) : # 碰撞(偵測x) >> 左右不影響
+                                self.collision_x = 1
             self.rect.x -= math.copysign(2, self.trap_velocity_x)
         
         if game_loopset.loopstage == 5 :
             for time_c in range(0, create_time_map,1) :
                 time_c_int = round(time_c, 0)
-                if  self.object_map[time_c_int][4] == 1 :   
-                    if self.collision_y == 0 :
-                        if self.trap_y + math.copysign(0.1, self.trap_velocity_y) > (height - self.object_map[time_c_int][1] - self.trap_sizey) and (self.trap_y + self.trap_sizey) < (height - self.object_map[time_c_int][1]) and (self.rect.x) > (self.object_map[time_c_int][0] - map_x - self.trap_sizex) and (self.rect.x ) < (self.object_map[time_c_int][0] - map_x + self.object_map[time_c_int][2]): # 碰撞(偵測y) >> 上(物體的)
-                            self.collision_y = 1
+                if  self.object_map[time_c_int][4] == 1 :
+                    if self.rect.x + self.trap_sizex > self.object_map[time_c_int][0] - map_x - 10 and self.rect.x < self.object_map[time_c_int][0] + self.object_map[time_c_int][2] - map_x + 10 :   
+                        if self.collision_y == 0 :
+                            if self.trap_y + math.copysign(0.1, self.trap_velocity_y) > (height - self.object_map[time_c_int][1] - self.trap_sizey) and (self.trap_y + self.trap_sizey) < (height - self.object_map[time_c_int][1]) and (self.rect.x) > (self.object_map[time_c_int][0] - map_x - self.trap_sizex) and (self.rect.x ) < (self.object_map[time_c_int][0] - map_x + self.object_map[time_c_int][2]): # 碰撞(偵測y) >> 上(物體的)
+                                self.collision_y = 1
     
     def move_model(self):
         if self.collision_x == 0 and game_loopset.loopstage == 4:
@@ -691,12 +699,17 @@ class Button_image(pygame.sprite.Sprite) :
     def change_image(self,new_image) :
         self.image = pygame.image.load(new_image).convert_alpha()
     def button_show(self) :
-        if self.level <= button_level :
-            self.change_image(self.image_path)
-            self.rect.y = self.y
-        else :
+        level_time = len(self.level)
+        show = 0
+        for i in range(0, level_time) :
+            if self.level[i] == button_level :
+                self.change_image(self.image_path)
+                self.rect.y = self.y
+                show = 1
+        if show == 0 :
             self.change_image(nothing_image_path)
             self.rect.y = height + 200
+
     # 按鈕功能設定
 collision_button_list = []
 def button_collision() :
@@ -723,7 +736,6 @@ def button_collision() :
                             button_level_now = button_level
                             pause = 1
                             button_level = 2
-                            time.sleep(0.5)
                         else :
                             pause = 0 
                             time.sleep(0.5)
@@ -750,7 +762,6 @@ def button_updata () :
 def sprites_updata_model() :
     all_sprites_map.update()
     all_sprites_player.update()
-    all_sprites_pause.update()
     all_sprites_trap.update()
     all_sprites_button.update()
     all_sprites_death.update()
@@ -792,14 +803,16 @@ def game_test() :
     if keys[pygame.K_8] :
         player_1.player_y = -100
     if keys[pygame.K_9] :
-        gamestage = 40
+        gamestage = (gamestage+1)*10
+        time.sleep(0.5) 
         
 # 建立 (位置以畫面左下角為(0, 0))
     # 按鈕 ["name", x, y, level, path, 效果]
 Button = [
-    ["PAUSE", 0, 30, 2, pause_image_path, 1],#nothing_image_path
-    ["start", width//2-250, height//2-50, 3, start_image_path, 2],    
-    ["How To PLAY", 0, height - 350 , 3, play_image, 3]    
+    ["PAUSE", 0, 30, [1], pause_image_path, 1],#nothing_image_path
+    ["start", width//2-250, height//2-50, [3], start_image_path, 2],    
+    ["How To PLAY", 0, height - 350 , [3], play_image, 3],
+    ["PAUSE_BIG", width//2 - 250, height//2 - 250, [2], continue_big_image_path, 1]    
         
         ]
 # 建立按鈕
@@ -943,27 +956,10 @@ map_2_trap = [
         [1, 4000, 720, 3952, 720, 1, 720, 0, 1, 7, trap_image_block_fireball, 0, 1],#火球
     ]
 
-    # map_2
-map_3_startingpoint_x = 1   # 出現位置X
-map_3_startingpoint_y = 410 # 出現位置Y
-map_3_difficulty = 1        # 難度(0是有二段/1是沒有二段/2是空中不能換向)
-map_3_endpoint_x = 4785     # 終點X
-map_3_object = [
-        [0,  60, 300000, 20 ,1]
-       
-    ]
-map_3_trap = [
-        
-    ]
-
 # 建立腳色
 player_1 = physics(copy.deepcopy(map_1_object), map_1_trap, 30, 45, 1, 320, 0) 
 all_sprites_player.add(player_1.player)
 all_sprites_map.add(player_1.map_image)
-
-# 建立暫停畫面
-pause_image = Map(pause_big_image_path, width//2 - 250, height//2 +250)
-all_sprites_pause.add(pause_image)
 
 # 建立死亡畫面
 death_image = Death_image (width // 2 - 100, height // 2)
@@ -1020,7 +1016,7 @@ while True:
         player_1.map_image.change_image(map_1_image_path)
         player_1.trap_create_model()
         gamestage = 1
-        button_level = 2
+        button_level = 1
     if gamestage == 20 :
         all_sprites_trap.empty()
         all_sprites_map.empty()
@@ -1029,17 +1025,9 @@ while True:
         player_1.map_image.change_image(map_2_image_path)
         player_1.trap_create_model()
         gamestage = 2
-        button_level = 2
+        button_level = 1
     if gamestage == 30 :
-        all_sprites_trap.empty()
-        all_sprites_map.empty()
-        all_sprites_map.add(player_1.map_image)
-        player_1.change_map(copy.deepcopy(map_3_object), map_3_trap, map_3_startingpoint_x, map_3_startingpoint_y, 1, map_3_difficulty, map_3_endpoint_x) # (地圖物件, 地圖陷阱, 腳色出現位置_x, 腳色出現位置_y, 第幾關, 難度, 終點)
-        player_1.map_image.change_image(map_3_image_path)
-        player_1.trap_create_model()
-        gamestage = 3
-        button_level = 2
-    if gamestage == 40 :
+        player_1.player_x = -100
         end_image = Map(map_end1_image_path, 0, 720)
         all_sprites_end.add(end_image)
         screen.fill(white)
@@ -1052,6 +1040,7 @@ while True:
         pygame.display.flip()
         time.sleep(1)
         all_sprites_end.empty()
+        screen.fill(white)
         gamestage = 10
     # 不死
     if dead_mode == 1 :
@@ -1094,9 +1083,7 @@ while True:
             player_1.collisionbox_draw_model() 
             player_1.trap_triggerbox_draw_model()
             player_1.map_triggerbox_draw_model()
-    # 繪製暫停畫面
-    if pause == 1 :
-        all_sprites_pause.draw(screen)
+  
     all_sprites_button.draw(screen)
     # 顯示測試參數
     if test_mode == 1:
